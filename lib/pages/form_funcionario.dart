@@ -1,76 +1,115 @@
+// views/form_funcionario_page.dart
+
 import 'package:flutter/material.dart';
+import 'package:revitalize_mobile/controllers/funcionario.dart';
+import 'package:revitalize_mobile/models/funcionario.dart';
+import 'package:revitalize_mobile/models/ocupacao.dart';
+import 'package:revitalize_mobile/models/cidade.dart';
 import 'package:revitalize_mobile/widgets/app_bar.dart';
-import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
 class FormFuncionarioPage extends StatefulWidget {
   const FormFuncionarioPage({super.key});
 
   @override
-  __FormFuncionarioPageState createState() => __FormFuncionarioPageState();
+  _FormFuncionarioPageState createState() => _FormFuncionarioPageState();
 }
 
-class __FormFuncionarioPageState extends State<FormFuncionarioPage> {
+class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
+  final FuncionarioController _controller = FuncionarioController();
+
+  // Variáveis de estado para os campos do formulário
   String nome = '';
-  String? ocupacao; // Start with null
-  String? genero; // Start with null
+  String? ocupacaoId; // Armazena apenas o ID da ocupação
+  String? genero;
   String cpf = '';
   String email = '';
   String endereco = '';
-  String? cidade; // Start with null
+  String? cidadeId; // Armazena apenas o ID da cidade
   String cep = '';
   String senha = '';
   String dataNascimento = '';
-  List<String> ocupacaoItems = [];
-  List<String> generoItems = ['Masculino - Teste', 'Feminino', 'Outro'];
-  List<String> cidadeItems = [
-    'São Paulo',
-    'Rio de Janeiro',
-    'Belo Horizonte'
-  ];
+  List<Ocupacao> ocupacaoItems = []; // Lista de Ocupações
+  List<Cidade> cidadeItems = []; // Lista de Cidades
+  List<String> generoItems = ['Masculino', 'Feminino', 'Outro'];
 
   TextEditingController _dateController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    fetchOcupacoes();
+    _loadOcupacoesECidades(); // Carregar ocupações e cidades ao inicializar
   }
 
-  Future<void> fetchOcupacoes() async {
-  QueryBuilder<ParseObject> queryOcupacao =
-      QueryBuilder<ParseObject>(ParseObject('ocupacao'));
-  final ParseResponse apiResponse = await queryOcupacao.query();
-
-  if (apiResponse.success && apiResponse.results != null) {
-    setState(() {
-      // Aqui, garantimos que estamos tratando corretamente o tipo de resultado.
-      ocupacaoItems = (apiResponse.results as List<ParseObject>)
-          .map((item) => item.get<String>('nome_ocupacao') ?? '')
-          .where((nome) => nome.isNotEmpty) // Filtra nomes vazios, se necessário
-          .toList();
-    });
-  } else {
-    // Caso não haja sucesso ou os resultados sejam nulos
-    setState(() {
-      ocupacaoItems = []; // Define como uma lista vazia
-    });
+  // Método para carregar ocupações e cidades
+  Future<void> _loadOcupacoesECidades() async {
+    ocupacaoItems = await _controller.fetchOcupacoes();
+    cidadeItems = await _controller.fetchCidades();
+    setState(() {}); // Atualizar a UI quando os dados forem carregados
   }
-}
 
-  Future<void> saveFuncionario() async {
-    final funcionario = ParseObject('Funcionario')
-      ..set('nome', nome)
-      ..set('ocupacao', ocupacao)
-      ..set('genero', genero)
-      ..set('cpf', cpf)
-      ..set('email', email)
-      ..set('endereco', endereco)
-      ..set('cidade', cidade)
-      ..set('cep', cep)
-      ..set('senha', senha)
-      ..set('data_nascimento', dataNascimento);
+  // Método para salvar o funcionário usando o controller
+  Future<void> _saveFuncionario() async {
+    final funcionario = Funcionario(
+      nome: nome,
+      ocupacao: ocupacaoId ?? '', // usa o ID da ocupação
+      genero: genero ?? '',
+      cpf: cpf,
+      email: email,
+      endereco: endereco,
+      cidade: cidadeId ?? '', // usa o ID da cidade
+      cep: cep,
+      senha: senha,
+      dataNascimento: dataNascimento,
+    );
 
-    await funcionario.save();
+    await _controller.saveFuncionario(funcionario);
+  }
+
+  // Método para selecionar a data de nascimento
+  Future<void> _selectDate() async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _dateController.text = picked.toString().split(" ")[0];
+        dataNascimento = _dateController.text;
+      });
+    }
+  }
+
+  // Métodos auxiliares para criar campos de formulário
+  Widget buildTextField(String label, Function(String) onChanged, {bool obscureText = false}) {
+    return TextField(
+      onChanged: onChanged,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(),
+      ),
+    );
+  }
+
+  Widget buildDropdownField<T>(
+      String label, T? value, List<T> items, Function(T?) onChanged, String Function(T) getItemLabel) {
+    return DropdownButtonFormField<T>(
+      value: value,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(),
+      ),
+      items: items.map((T item) {
+        return DropdownMenuItem<T>(
+          value: item,
+          child: Text(getItemLabel(item)),
+        );
+      }).toList(),
+      onChanged: onChanged,
+    );
   }
 
   @override
@@ -86,16 +125,7 @@ class __FormFuncionarioPageState extends State<FormFuncionarioPage> {
               Center(child: Icon(Icons.person, size: 60)),
               SizedBox(height: 20),
 
-              TextField(
-                onChanged: (text) {
-                  nome = text;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Nome',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-
+              buildTextField('Nome', (text) => nome = text),
               SizedBox(height: 20),
 
               TextField(
@@ -108,136 +138,60 @@ class __FormFuncionarioPageState extends State<FormFuncionarioPage> {
                       borderSide: BorderSide(color: Colors.blue)),
                 ),
                 readOnly: true,
-                onTap: selectDate,
-              ),
-
-              SizedBox(height: 10),
-
-              // Dropdown for Ocupação
-              DropdownButtonFormField<String>(
-                value: ocupacao,
-                decoration: const InputDecoration(
-                  labelText: 'Ocupação',
-                  border: OutlineInputBorder(),
-                ),
-                items: ocupacaoItems.map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    ocupacao = newValue;
-                  });
-                },
+                onTap: _selectDate,
               ),
               SizedBox(height: 10),
 
-              // Password Field
-              TextField(
-                obscureText: true,
-                onChanged: (text) {
-                  senha = text;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Senha',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+              // Dropdown para ocupação
+              buildDropdownField<Ocupacao>(
+                  'Ocupação', 
+                  ocupacaoItems.firstWhere(
+                    (item) => item.id == ocupacaoId, 
+                    orElse: () => ocupacaoItems.isNotEmpty ? ocupacaoItems.first : ocupacaoItems[0]
+                  ), 
+                  ocupacaoItems, 
+                  (newValue) => setState(() => ocupacaoId = newValue?.id), 
+                  (Ocupacao ocupacao) => ocupacao.nome),
               SizedBox(height: 10),
 
-              // Dropdown for Gênero
-              DropdownButtonFormField<String>(
-                value: genero,
-                decoration: const InputDecoration(
-                  labelText: 'Gênero',
-                  border: OutlineInputBorder(),
-                ),
-                items: generoItems.map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    genero = newValue;
-                  });
-                },
-              ),
+              buildDropdownField<String>(
+                  'Gênero', 
+                  genero, 
+                  generoItems,
+                  (newValue) => setState(() => genero = newValue), 
+                  (String genero) => genero),
               SizedBox(height: 10),
 
-              TextField(
-                onChanged: (text) {
-                  cpf = text;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'CPF',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+              buildTextField('CPF', (text) => cpf = text),
               SizedBox(height: 10),
 
-              TextField(
-                onChanged: (text) {
-                  email = text;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'E-mail',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+              buildTextField('E-mail', (text) => email = text),
               SizedBox(height: 10),
 
-              TextField(
-                onChanged: (text) {
-                  endereco = text;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Endereço',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+              buildTextField('Endereço', (text) => endereco = text),
               SizedBox(height: 10),
 
-              // Dropdown for Cidade
-              DropdownButtonFormField<String>(
-                value: cidade,
-                decoration: const InputDecoration(
-                  labelText: 'Cidade',
-                  border: OutlineInputBorder(),
-                ),
-                items: cidadeItems.map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    cidade = newValue;
-                  });
-                },
-              ),
+              // Dropdown para cidade
+              buildDropdownField<Cidade>(
+                  'Cidade', 
+                  cidadeItems.firstWhere(
+                    (item) => item.id == cidadeId, 
+                    orElse: () => cidadeItems.isNotEmpty ? cidadeItems.first : cidadeItems[0]
+                  ),
+                  cidadeItems, 
+                  (newValue) => setState(() => cidadeId = newValue?.id), 
+                  (Cidade cidade) => cidade.nome),
               SizedBox(height: 10),
 
-              TextField(
-                onChanged: (text) {
-                  cep = text;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'CEP',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+              buildTextField('CEP', (text) => cep = text),
+              SizedBox(height: 10),
+
+              buildTextField('Senha', (text) => senha = text, obscureText: true),
               SizedBox(height: 20),
 
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
-                    saveFuncionario();
-                  },
+                  onPressed: _saveFuncionario,
                   child: const Text('Cadastrar'),
                 ),
               ),
@@ -246,20 +200,5 @@ class __FormFuncionarioPageState extends State<FormFuncionarioPage> {
         ),
       ),
     );
-  }
-
-  Future<void> selectDate() async {
-    DateTime? _picked = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(2000),
-        lastDate: DateTime(2100));
-
-    if (_picked != null) {
-      setState(() {
-        _dateController.text = _picked.toString().split(" ")[0];
-        dataNascimento = _dateController.text; // Save the date
-      });
-    }
   }
 }
