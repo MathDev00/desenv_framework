@@ -24,22 +24,6 @@ void main() async {
    await Parse().initialize(keyApplicationId, keyParseServerUrl,
        clientKey: keyClientKey, autoSendSessionId: true);
 
-  var firstObject = ParseObject('FirstClass')
-    ..set(
-        'message', 'Hey, Parse is now connected!🙂');
-  await firstObject.save();
-
-Future<void> saveTodo(String nome_ocupacao) async {
-  final todo = ParseObject('ocupacao')
-    ..set('nome_ocupacao', nome_ocupacao)
-    ..set('done', false);
-
-  await todo.save();
-}
-
-saveTodo("TESTE");
-
-
  
 }
 
