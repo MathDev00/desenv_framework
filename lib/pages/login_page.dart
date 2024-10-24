@@ -78,13 +78,11 @@ class __LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () async {
-                    // Chama a função login para verificar se o email e senha são válidos
                     bool isSuccess = await login(email, password);
                     if (isSuccess) {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => const MainApp()));
                     } else {
-                      // Exibe uma mensagem de erro caso os dados estejam errados
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Email ou senha incorretos!')),
                       );
