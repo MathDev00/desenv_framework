@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:revitalize_mobile/pages/login_page.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
-
 // Widget -> componentres (classes) (tela) -> recebe filhos
 // StatelessWidget -> Nada se altera (estado)
 // Container -> global, Text -> local
@@ -14,17 +13,32 @@ import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 // ChangeNotifier - > apenas regra de negócio!!
 
 void main() async {
+  runApp(const AppWideget());
 
- runApp(const AppWideget());
- 
- const keyApplicationId = '9EFKCAxEBXXDQ8XY6Itu5opkksqQQLecwgngOZl7';
+  const keyApplicationId = '9EFKCAxEBXXDQ8XY6Itu5opkksqQQLecwgngOZl7';
   const keyClientKey = 'u1oZ9MXK0choNhZIwjonc6MzTIiSXcvTQiCZgter';
   const keyParseServerUrl = 'https://parseapi.back4app.com';
 
-   await Parse().initialize(keyApplicationId, keyParseServerUrl,
-       clientKey: keyClientKey, autoSendSessionId: true);
+  await Parse().initialize(keyApplicationId, keyParseServerUrl,
+      clientKey: keyClientKey, autoSendSessionId: true);
 
- 
+  /*/void doUserRegistration() async {
+    final username = "admin";
+    final email = "admin@gmail.com";
+    final password = "123456789A!";
+
+    final user = ParseUser.createUser(username, password, email);
+
+    var response = await user.signUp();
+
+    if (response.success) {
+      print("Sucesso");
+    } else {
+      print("response.error!.message");
+    }
+  }
+
+  doUserRegistration();*/
 }
 
 // StatelessWidget -> É estático!

@@ -13,35 +13,69 @@ class LoginPage extends StatefulWidget {
 class __LoginPageState extends State<LoginPage> {
   String email = '';
   String password = '';
+  bool isLoggedIn = false;
+
 
   @override
   void initState() {
     super.initState();
-    initializeParse();
   }
 
-  Future<void> initializeParse() async {
-    await Parse().initialize(
-      '9EFKCAxEBXXDQ8XY6Itu5opkksqQQLecwgngOZl7',
-      'https://parseapi.back4app.com', 
-      clientKey: 'u1oZ9MXK0choNhZIwjonc6MzTIiSXcvTQiCZgter', 
-      autoSendSessionId: true,
-      debug: true, 
-    );
-  }
+     void showSuccess(String message) {
+     showDialog(
+       context: context,
+       builder: (BuildContext context) {
+         return AlertDialog(
+           title: const Text("Success!"),
+           content: Text(message),
+           actions: <Widget>[
+             new TextButton(
+               child: const Text("OK"),
+               onPressed: () {
+                 Navigator.of(context).pop();
+               },
+             ),
+           ],
+         );
+       },
+     );
+   }
 
-  Future<bool> login(String email, String password) async {
-    final query = QueryBuilder<ParseObject>(ParseObject('funcionario'))
-      ..whereEqualTo('email', email)
-      ..whereEqualTo('senha', password);
+void showError(String errorMessage) {
+     showDialog(
+       context: context,
+       builder: (BuildContext context) {
+         return AlertDialog(
+           title: const Text("Error!"),
+           content: Text(errorMessage),
+           actions: <Widget>[
+             new TextButton(
+               child: const Text("OK"),
+               onPressed: () {
+                 Navigator.of(context).pop();
+               },
+             ),
+           ],
+         );
+       },
+     );
+   }
 
-    final response = await query.query();
 
-    if (response.success && response.results != null && response.results!.isNotEmpty) {
-      return true;
-    } else {
-      return false;
-    }
+ void login(String email, String password) async {
+
+      final user = ParseUser(null, password, email);
+ 
+       var response = await user.login();
+
+      if (response.success) {
+      showSuccess("User was successfully login!");
+        setState(() {
+          isLoggedIn = true;
+        });
+      } else {
+        showError(response.error!.message);
+      }
   }
 
   @override
@@ -77,16 +111,9 @@ class __LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
-                  onPressed: () async {
-                    bool isSuccess = await login(email, password);
-                    if (isSuccess) {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const MainApp()));
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Email ou senha incorretos!')),
-                      );
-                    }
+                  onPressed: ()  {
+                    login(email, password);
+  
                   },
                   child: const Text('Entrar'),
                 )
