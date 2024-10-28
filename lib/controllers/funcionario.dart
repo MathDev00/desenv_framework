@@ -47,24 +47,30 @@ class FuncionarioController {
   }
 
  Future<void> saveFuncionario(Funcionario funcionario) async {
-    final funcionarioObject = ParseObject('Funcionario')
-      ..set('nome', funcionario.nome)
-      ..set('ocupacao', ParseObject('Ocupacao')..set('objectId', funcionario.ocupacao))
-      ..set('genero', funcionario.genero)
-      ..set('cpf', funcionario.cpf)
-      ..set('email', funcionario.email)
-      ..set('endereco', funcionario.endereco)
-      ..set('cidade', ParseObject('Cidade')..set('objectId', funcionario.cidade)) 
-      ..set('cep', funcionario.cep)
-      ..set('senha', funcionario.senha)
-      ..set('data_nascimento', funcionario.dataNascimento);
+  final funcionarioObject = ParseObject('funcionario')
+    ..set('nome', funcionario.nome)
+    ..set('ocupacao_id', (ParseObject('ocupacao')..objectId = funcionario.ocupacao)) // Atribuindo o Pointer de ocupacao
+    ..set('genero', funcionario.genero)
+    ..set('cpf', funcionario.cpf)
+    ..set('email', funcionario.email)
+    ..set('endereco', funcionario.endereco)
+    ..set('cidade_id', (ParseObject('cidade')..objectId = funcionario.cidade)) // Atribuindo o Pointer de cidade    ..set('cep', funcionario.cep)
+    ..set('senha', funcionario.senha)
+    ..set('cep', funcionario.cep)
+    ..set('data_nascimento', funcionario.dataNascimento);
 
-    final response = await funcionarioObject.save();
 
-    if (!response.success) {
-      print('Error saving funcionario: ${response.error?.message}');
-    } else {
-      print('Funcionario saved successfully!');
-    }
+    //print('ID da Cidade: ${funcionario.cep}');
+    print('ID da Cidade: ${funcionario.dataNascimento}');
+
+
+  final response = await funcionarioObject.save();
+
+  if (!response.success) {
+    print('Error saving funcionario: ${response.error?.message}');
+  } else {
+    print('Funcionario saved successfully!');
   }
+}
+
 }
