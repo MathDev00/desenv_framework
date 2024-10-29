@@ -3,9 +3,9 @@ import 'package:revitalize_mobile/pages/login_page.dart';
 import 'package:revitalize_mobile/pages/funcionario_page.dart';
 import 'package:revitalize_mobile/pages/paciente_page.dart';
 import 'package:revitalize_mobile/pages/prontuarios_page.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +14,7 @@ class MainApp extends StatelessWidget {
       home: MyHomePage(),
     );
   }
-}
+
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -25,6 +25,46 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+ void showSuccess(String message) {
+     showDialog(
+       context: context,
+       builder: (BuildContext context) {
+         return AlertDialog(
+           title: const Text("Success!"),
+           content: Text(message),
+           actions: <Widget>[
+             new TextButton(
+               child: const Text("OK"),
+               onPressed: () {
+                 Navigator.of(context).pop();
+               },
+             ),
+           ],
+         );
+       },
+     );
+   }
+
+void showError(String errorMessage) {
+     showDialog(
+       context: context,
+       builder: (BuildContext context) {
+         return AlertDialog(
+           title: const Text("Error!"),
+           content: Text(errorMessage),
+           actions: <Widget>[
+             new TextButton(
+               child: const Text("OK"),
+               onPressed: () {
+                 Navigator.of(context).pop();
+               },
+             ),
+           ],
+         );
+       },
+     );
+   }
 
 
   void _onFuncionarioPressed () {
@@ -48,6 +88,23 @@ class _MyHomePageState extends State<MyHomePage> {
     MaterialPageRoute(builder: (context) => const ProntuariosPage()));
 
   }
+
+
+       void doUserLogout() async {
+       final user = await ParseUser.currentUser() as ParseUser;
+       var response = await user.logout();
+   
+       if (response.success) {
+         showSuccess("User was successfully logout!");
+         setState(() {
+           var isLoggedIn = false;
+      Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) => const LoginPage()));
+         });
+      } else {
+        showError(response.error!.message);
+      }
+    }
 
   
   @override
@@ -140,8 +197,9 @@ class _MyHomePageState extends State<MyHomePage> {
             IconButton(
               icon: const Icon(Icons.logout),
               onPressed: () {
-                Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => const LoginPage()));
+
+                doUserLogout();
+              
               },
             ),
           ],

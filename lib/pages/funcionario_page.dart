@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors
+
 import 'package:flutter/material.dart';
 import 'package:revitalize_mobile/pages/form_funcionario.dart';
 import 'package:revitalize_mobile/widgets/custom_table.dart';
@@ -102,7 +104,7 @@ class CustomTextWidget extends StatelessWidget {
   final List<String> titulo;
   final List<String> dados;
 
-  CustomTextWidget({required this.titulo, required this.dados});
+  const CustomTextWidget({required this.titulo, required this.dados});
 
   @override
   Widget build(BuildContext context) {

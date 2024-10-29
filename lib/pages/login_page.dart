@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:revitalize_mobile/pages/tela_inicial.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
+import 'package:revitalize_mobile/testes/home_page.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -64,15 +65,23 @@ void showError(String errorMessage) {
 
  void login(String email, String password) async {
 
-      final user = ParseUser(null, password, email);
+      final user = ParseUser(email, password, null);
  
        var response = await user.login();
 
       if (response.success) {
       showSuccess("User was successfully login!");
+          
+          Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const MyHomePage()));
+
         setState(() {
           isLoggedIn = true;
+          
         });
+
+         
+
       } else {
         showError(response.error!.message);
       }

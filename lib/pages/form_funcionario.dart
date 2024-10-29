@@ -62,7 +62,7 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
       dataNascimento: dataNascimento,
     );
 
-    await _controller.saveFuncionario(funcionario);
+    //await _controller.saveFuncionario(funcionario);
   }
 
   // Método para selecionar a data de nascimento

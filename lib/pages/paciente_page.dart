@@ -145,6 +145,7 @@ class CustomTextWidget extends StatelessWidget {
   final List<String> titulo;
   final List<String> dados;
 
+  // ignore: use_key_in_widget_constructors
   CustomTextWidget({required this.titulo, required this.dados});
 
   @override

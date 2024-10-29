@@ -10,6 +10,7 @@ class CustomTable extends StatelessWidget {
   final List<String> nomeCampo;
   final List<String> dados;
 
+  // ignore: prefer_const_constructors_in_immutables
   CustomTable({
     super.key,
     required this.quantidadeCampo,

@@ -1,4 +1,3 @@
-
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:revitalize_mobile/models/funcionario.dart';
 
@@ -46,31 +45,60 @@ class FuncionarioController {
     return cidadeItems;
   }
 
- Future<void> saveFuncionario(Funcionario funcionario) async {
+  /*/void doUserRegistration() async {
+    final username = "admin";
+    final email = "admin@gmail.com";
+    final password = "123456789A!";
+
+  q//email, password, email
+    final user = ParseUser.createUser(username, password, email);
+
+    var response = await user.signUp();
+
+    if (response.success) {
+    return user.objectId();
+    } else {
+      print("response.error!.message");
+    }
+  }
+
+  last_id = doUserRegistration();*/
+}
+
+Future<void> saveFuncionario(Funcionario funcionario) async {
+  //doUserRegistration
+
+  //lastid
+
   final funcionarioObject = ParseObject('funcionario')
     ..set('nome', funcionario.nome)
-    ..set('ocupacao_id', (ParseObject('ocupacao')..objectId = funcionario.ocupacao)) // Atribuindo o Pointer de ocupacao
+    ..set(
+        'ocupacao_id',
+        (ParseObject('ocupacao')
+          ..objectId =
+              funcionario.ocupacao)) // Atribuindo o Pointer de ocupacao
     ..set('genero', funcionario.genero)
     ..set('cpf', funcionario.cpf)
     ..set('email', funcionario.email)
     ..set('endereco', funcionario.endereco)
-    ..set('cidade_id', (ParseObject('cidade')..objectId = funcionario.cidade)) // Atribuindo o Pointer de cidade    ..set('cep', funcionario.cep)
+    ..set(
+        'cidade_id',
+        (ParseObject('cidade')
+          ..objectId = funcionario
+              .cidade)) // Atribuindo o Pointer de cidade    ..set('cep', funcionario.cep)
     ..set('senha', funcionario.senha)
     ..set('cep', funcionario.cep)
     ..set('data_nascimento', funcionario.dataNascimento);
+  // last_id  =   //lastid
 
-
-    //print('ID da Cidade: ${funcionario.cep}');
-    print('ID da Cidade: ${funcionario.dataNascimento}');
-
+  //print('ID da Cidade: ${funcionario.cep}');
+  //print('ID da Cidade: ${funcionario.dataNascimento}');
 
   final response = await funcionarioObject.save();
 
   if (!response.success) {
-    print('Error saving funcionario: ${response.error?.message}');
+    //print('Error saving funcionario: ${response.error?.message}');
   } else {
-    print('Funcionario saved successfully!');
+    //print('Funcionario saved successfully!');
   }
-}
-
 }

@@ -19,6 +19,7 @@ String nome = '';
   String cidade = ''; // Start with an empty string
   String cep = '';
   String senha = '';
+  // ignore: non_constant_identifier_names
   String data_nascimento = '';
 
 
@@ -181,6 +182,7 @@ String nome = '';
   }
 
   Future<void> selectDate() async {
+    // ignore: no_leading_underscores_for_local_identifiers
     DateTime? _picked = await showDatePicker(
         context: context,
         initialDate: DateTime.now(),
