@@ -22,7 +22,7 @@ void main() async {
   await Parse().initialize(keyApplicationId, keyParseServerUrl,
       clientKey: keyClientKey, autoSendSessionId: true);
 
-  void doUserRegistration() async {
+  /*void doUserRegistration() async {
     final username = "admin@gmail.com";
     final email = "admin@gmail.com";
     final password = "123456789A!";
@@ -37,9 +37,9 @@ void main() async {
     } else {
       print("response.error!.message");
     }
-  }
+  }*/
 
-  doUserRegistration();
+  //doUserRegistration();
 }
 
 // StatelessWidget -> É estático!

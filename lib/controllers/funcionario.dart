@@ -1,6 +1,5 @@
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:revitalize_mobile/models/funcionario.dart';
-
 import 'package:revitalize_mobile/models/ocupacao.dart';
 import 'package:revitalize_mobile/models/cidade.dart';
 
@@ -45,60 +44,48 @@ class FuncionarioController {
     return cidadeItems;
   }
 
-  /*/void doUserRegistration() async {
-    final username = "admin";
-    final email = "admin@gmail.com";
-    final password = "123456789A!";
+  Future<void> saveFuncionario(Funcionario funcionario) async {
+    // Função para criar o usuário ParseUser
+    Future<String?> doUserRegistration(String email, String senha) async {
+      final user = ParseUser.createUser(email, senha, email);
+      final response = await user.signUp();
 
-  q//email, password, email
-    final user = ParseUser.createUser(username, password, email);
-
-    var response = await user.signUp();
-
-    if (response.success) {
-    return user.objectId();
-    } else {
-      print("response.error!.message");
+      if (response.success) {
+        return user.objectId;
+      } else {
+        print("Erro no registro do usuário: ${response.error?.message}");
+        return null;
+      }
     }
-  }
 
-  last_id = doUserRegistration();*/
-}
+    // Realiza o registro do usuário e captura o objectId
+    final lastId = await doUserRegistration(funcionario.email, funcionario.senha);
+    if (lastId == null) {
+      print("Erro: não foi possível obter o objectId do usuário.");
+      return;
+    }
 
-Future<void> saveFuncionario(Funcionario funcionario) async {
-  //doUserRegistration
+    // Criar objeto Funcionario e salvar com referência ao usuario_id
+    final funcionarioObject = ParseObject('funcionario')
+      ..set('nome', funcionario.nome)
+      ..set('ocupacao_id', ParseObject('ocupacao')..objectId = funcionario.ocupacao) // Pointer para ocupacao
+      ..set('genero', funcionario.genero)
+      ..set('cpf', funcionario.cpf)
+      ..set('email', funcionario.email)
+      ..set('endereco', funcionario.endereco)
+      ..set('cidade_id', ParseObject('cidade')..objectId = funcionario.cidade) // Pointer para cidade
+      ..set('cep', funcionario.cep)
+      ..set('data_nascimento', funcionario.dataNascimento)
+      ..set('usuario_id', ParseObject('_User')..objectId = lastId); // Pointer para usuário
 
-  //lastid
+  print('Ocupacao ID: ${funcionario.ocupacao}');
 
-  final funcionarioObject = ParseObject('funcionario')
-    ..set('nome', funcionario.nome)
-    ..set(
-        'ocupacao_id',
-        (ParseObject('ocupacao')
-          ..objectId =
-              funcionario.ocupacao)) // Atribuindo o Pointer de ocupacao
-    ..set('genero', funcionario.genero)
-    ..set('cpf', funcionario.cpf)
-    ..set('email', funcionario.email)
-    ..set('endereco', funcionario.endereco)
-    ..set(
-        'cidade_id',
-        (ParseObject('cidade')
-          ..objectId = funcionario
-              .cidade)) // Atribuindo o Pointer de cidade    ..set('cep', funcionario.cep)
-    ..set('senha', funcionario.senha)
-    ..set('cep', funcionario.cep)
-    ..set('data_nascimento', funcionario.dataNascimento);
-  // last_id  =   //lastid
+    final response = await funcionarioObject.save();
 
-  //print('ID da Cidade: ${funcionario.cep}');
-  //print('ID da Cidade: ${funcionario.dataNascimento}');
-
-  final response = await funcionarioObject.save();
-
-  if (!response.success) {
-    //print('Error saving funcionario: ${response.error?.message}');
-  } else {
-    //print('Funcionario saved successfully!');
+    if (!response.success) {
+      print('Erro ao salvar funcionário: ${response.error?.message}');
+    } else {
+      print('Funcionário salvo com sucesso!');
+    }
   }
 }

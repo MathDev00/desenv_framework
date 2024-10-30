@@ -12,6 +12,7 @@ analyzer:
     avoid_unnecessary_containers: ignore
     unused_import: ignore
     prefer_const_literals_to_create_immutables: ignore
+    non_constant_identifier_names: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:

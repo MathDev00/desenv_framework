@@ -50,6 +50,7 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
   // Método para salvar o funcionário usando o controller
   Future<void> _saveFuncionario() async {
     final funcionario = Funcionario(
+      id: '',
       nome: nome,
       ocupacao: ocupacaoId ?? '', // usa o ID da ocupação
       genero: genero ?? '',
@@ -62,7 +63,7 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
       dataNascimento: dataNascimento,
     );
 
-    //await _controller.saveFuncionario(funcionario);
+    await _controller.saveFuncionario(funcionario);
   }
 
   // Método para selecionar a data de nascimento

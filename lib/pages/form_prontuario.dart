@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:revitalize_mobile/models/funcionario.dart';
+import 'package:revitalize_mobile/models/paciente.dart';
+import 'package:revitalize_mobile/controllers/prontuario.dart';
+
 import 'package:revitalize_mobile/widgets/app_bar.dart';
 
 class FormProntuarioPage extends StatefulWidget {
@@ -9,12 +13,30 @@ class FormProntuarioPage extends StatefulWidget {
 }
 
 class __FormProntuarioPageState extends State<FormProntuarioPage> {
-  String paciente = 'Paciente A';
-  String profissional = 'Profissional X';
-  String privacidade = 'Privado';
+  String? paciente;
+  String? profissional;
   String prontuarioTexto = '';
-  
+
+  final List<Paciente> pacientes = [];
+  final List<Funcionario> profissionais = [];
+  final ProntuarioController _controller = ProntuarioController();
   List<TextEditingController> _controllers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final fetchedPacientes = await _controller.fetchPacientes();
+    final fetchedFuncionarios = await _controller.fetchFuncionarios();
+
+    setState(() {
+      pacientes.addAll(fetchedPacientes);
+      profissionais.addAll(fetchedFuncionarios);
+    });
+  }
 
   @override
   void dispose() {
@@ -34,102 +56,58 @@ class __FormProntuarioPageState extends State<FormProntuarioPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(child: Icon(Icons.person, size: 60)),
-              SizedBox(height: 20),
+              const Center(child: Icon(Icons.person, size: 60)),
+              const SizedBox(height: 20),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButton<String>(
-                      value: paciente,
-                      isExpanded: true,
-                      items: ['Paciente A', 'Paciente B', 'Paciente C']
-                          .map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (newValue) {
-                        setState(() {
-                          paciente = newValue!;
-                        });
-                      },
-                    ),
-                  ),
-                ],
+              // Dropdown de Pacientes
+              _buildDropdown(
+                label: 'Paciente',
+                value: paciente,
+                items: pacientes.map((p) => p.nome).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    paciente = newValue;
+                  });
+                },
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButton<String>(
-                      value: profissional,
-                      isExpanded: true,
-                      items: ['Profissional X', 'Profissional Y', 'Profissional Z']
-                          .map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (newValue) {
-                        setState(() {
-                          profissional = newValue!;
-                        });
-                      },
-                    ),
-                  ),
-                ],
+              // Dropdown de Profissionais
+              _buildDropdown(
+                label: 'Profissional',
+                value: profissional,
+                items: profissionais.map((f) => f.nome).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    profissional = newValue;
+                  });
+                },
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButton<String>(
-                      value: privacidade,
-                      isExpanded: true,
-                      items: ['Privado', 'Publicado'].map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (newValue) {
-                        setState(() {
-                          privacidade = newValue!;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-
+              // Campo de Texto do Prontuário
               TextField(
                 onChanged: (text) {
                   prontuarioTexto = text;
                 },
                 maxLines: 5,
                 decoration: const InputDecoration(
-                  labelText: 'Texto do Prontuário',
+                  labelText: 'Prontuário',
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-              // Campos de texto dinâmicos
+              // Campos de texto dinâmicos adicionados pelo usuário
               Column(
                 children: _controllers.map((controller) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 10.0),
                     child: TextField(
                       controller: controller,
-                      maxLines: 1,
+                      maxLines: 5,
                       decoration: const InputDecoration(
-                        labelText: 'Campo Adicional',
+                        labelText: 'Informação Adicional',
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -137,6 +115,7 @@ class __FormProntuarioPageState extends State<FormProntuarioPage> {
                 }).toList(),
               ),
 
+              // Botão para Adicionar Campo de Texto
               Center(
                 child: ElevatedButton(
                   onPressed: () {
@@ -147,11 +126,28 @@ class __FormProntuarioPageState extends State<FormProntuarioPage> {
                   child: const Text('Adicionar Campo'),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 10),
 
+              // Botão para Remover o Último Campo de Texto
               Center(
                 child: ElevatedButton(
                   onPressed: () {
+                    if (_controllers.isNotEmpty) {
+                      setState(() {
+                        _controllers.removeLast();
+                      });
+                    }
+                  },
+                  child: const Text('Remover Último Campo'),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Botão de Cadastrar
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Lógica de cadastro pode ser implementada aqui
                   },
                   child: const Text('Cadastrar'),
                 ),
@@ -160,6 +156,37 @@ class __FormProntuarioPageState extends State<FormProntuarioPage> {
           ),
         ),
       ),
+    );
+  }
+
+  // Widget de Dropdown com Label
+  Widget _buildDropdown({
+    required String label,
+    required String? value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        DropdownButton<String>(
+          value: value,
+          isExpanded: true,
+          items: items.map((String item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(item),
+            );
+          }).toList(),
+          onChanged: onChanged,
+          hint: Text('Selecione um $label'),
+          underline: Container(
+            height: 1,
+            color: Colors.grey[400],
+          ),
+        ),
+      ],
     );
   }
 }
