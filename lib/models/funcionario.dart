@@ -27,7 +27,6 @@ class Funcionario {
     required this.dataNascimento,
   });
 
-  // Método de conversão para criar um Funcionario a partir de um ParseObject
   factory Funcionario.fromParse(ParseObject object) {
     return Funcionario(
       id: object.objectId!,

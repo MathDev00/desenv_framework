@@ -6,8 +6,7 @@ class ProntuarioController {
   Future<List<Paciente>> fetchPacientes() async {
     List<Paciente> pacienteItems = [];
     QueryBuilder<ParseObject> queryPaciente =
-        QueryBuilder<ParseObject>(ParseObject('paciente')); // Nome da classe do banco
-
+        QueryBuilder<ParseObject>(ParseObject('paciente')); 
     final ParseResponse apiResponse = await queryPaciente.query();
 
     if (apiResponse.success && apiResponse.results != null) {
@@ -22,7 +21,7 @@ class ProntuarioController {
   Future<List<Funcionario>> fetchFuncionarios() async {
     List<Funcionario> funcionarioItems = [];
     QueryBuilder<ParseObject> queryFuncionario =
-        QueryBuilder<ParseObject>(ParseObject('funcionario')); // Nome da classe do banco
+        QueryBuilder<ParseObject>(ParseObject('funcionario'));
 
     final ParseResponse apiResponse = await queryFuncionario.query();
 
