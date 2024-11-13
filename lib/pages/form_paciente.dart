@@ -1,36 +1,95 @@
 import 'package:flutter/material.dart';
-import 'package:revitalize_mobile/widgets/app_bar.dart';
+import 'package:revitalize_mobile/controllers/funcionario.dart'; // Controller to fetch cities
+import 'package:revitalize_mobile/widgets/app_bar.dart'; // Custom AppBar Widget
+import 'package:revitalize_mobile/models/cidade.dart'; // Cidade model
 
 class FormPacientePage extends StatefulWidget {
   const FormPacientePage({super.key});
 
   @override
-  __FormPacientePageState createState() => __FormPacientePageState();
+  _FormPacientePageState createState() => _FormPacientePageState();
 }
 
-class __FormPacientePageState extends State<FormPacientePage> {
-  
-String nome = '';
-  String ocupacao = ''; // Start with an empty string
-  String genero = ''; // Start with an empty string
+class _FormPacientePageState extends State<FormPacientePage> {
+  final FuncionarioController _funcionarioController = FuncionarioController();
+
+  String nome = '';
+  String ocupacao = ''; // Occupation (not used here yet)
+  String genero = ''; // Gender
   String cpf = '';
   String email = '';
   String endereco = '';
-  String cidade = ''; // Start with an empty string
+  Cidade? cidade; // Store selected city as a Cidade object
   String cep = '';
   String senha = '';
-  // ignore: non_constant_identifier_names
-  String data_nascimento = '';
-
+  String dataNascimento = '';
 
   final List<String> generoItems = ['Masculino', 'Feminino', 'Outro'];
-  final List<String> cidadeItems = [
-    'São Paulo',
-    'Rio de Janeiro',
-    'Belo Horizonte'
-  ];
+  List<Cidade> cidadeItems = []; // Dynamically fetched cities
 
   TextEditingController _dateController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCidades(); // Load cities when the page initializes
+  }
+
+  // Fetch cities from the backend via the FuncionarioController
+  Future<void> _loadCidades() async {
+    List<Cidade> cidades = await _funcionarioController.fetchCidades();
+    setState(() {
+      cidadeItems = cidades;
+    });
+  }
+
+  // Method to handle date selection
+  Future<void> selectDate() async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _dateController.text = picked.toString().split(" ")[0];
+        dataNascimento = _dateController.text;
+      });
+    }
+  }
+
+  // Build text input fields with dynamic value updates
+  Widget buildTextField(String label, Function(String) onChanged, {bool obscureText = false}) {
+    return TextField(
+      onChanged: onChanged,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(),
+      ),
+    );
+  }
+
+  // Build dropdown fields
+  Widget buildDropdownField<T>(
+      String label, T? value, List<T> items, Function(T?) onChanged, String Function(T) getItemLabel) {
+    return DropdownButtonFormField<T>(
+      value: value,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(),
+      ),
+      items: items.map((T item) {
+        return DropdownMenuItem<T>(
+          value: item,
+          child: Text(getItemLabel(item)),
+        );
+      }).toList(),
+      onChanged: onChanged,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,131 +104,69 @@ String nome = '';
               Center(child: Icon(Icons.person, size: 60)),
               SizedBox(height: 20),
 
-              TextField(
-                onChanged: (text) {
-                  nome = text;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Nome',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-
+              // Text field for "Nome"
+              buildTextField('Nome', (text) => nome = text),
               SizedBox(height: 20),
 
+              // Date picker for "Data de Nascimento"
               TextField(
                 controller: _dateController,
                 decoration: InputDecoration(
-                  labelText: 'Date',
+                  labelText: 'Data de Nascimento',
                   filled: true,
                   prefixIcon: Icon(Icons.calendar_today),
                   enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.blue)),
                 ),
                 readOnly: true,
-                onTap: () {
-                  selectDate();
-                },
-              ),
-
-              SizedBox(height: 10),
-
-              // Dropdown for Ocupação
-        
-              SizedBox(height: 10),
-
-              // Password Field
-
-              // Dropdown for Gênero
-              DropdownButtonFormField<String>(
-                value: genero.isEmpty ? null : genero,
-                decoration: const InputDecoration(
-                  labelText: 'Gênero',
-                  border: OutlineInputBorder(),
-                ),
-                items: generoItems.map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    genero = newValue!;
-                  });
-                },
+                onTap: selectDate,
               ),
               SizedBox(height: 10),
 
-              TextField(
-                onChanged: (text) {
-                  cpf = text;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'CPF',
-                  border: OutlineInputBorder(),
-                ),
+              // Gender Dropdown
+              buildDropdownField<String>(
+                'Gênero',
+                genero.isEmpty ? null : genero,
+                generoItems,
+                (newValue) => setState(() => genero = newValue!),
+                (String genero) => genero,
               ),
               SizedBox(height: 10),
 
-              TextField(
-                onChanged: (text) {
-                  email = text;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'E-mail',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+              // Text field for "CPF"
+              buildTextField('CPF', (text) => cpf = text),
               SizedBox(height: 10),
 
-              TextField(
-                onChanged: (text) {
-                  endereco = text;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Endereço',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+              // Text field for "E-mail"
+              buildTextField('E-mail', (text) => email = text),
               SizedBox(height: 10),
 
-              // Dropdown for Cidade
-              DropdownButtonFormField<String>(
-                value: cidade.isEmpty ? null : cidade,
-                decoration: const InputDecoration(
-                  labelText: 'Cidade',
-                  border: OutlineInputBorder(),
-                ),
-                items: cidadeItems.map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    cidade = newValue!;
-                  });
-                },
-              ),
+              // Text field for "Endereço"
+              buildTextField('Endereço', (text) => endereco = text),
               SizedBox(height: 10),
 
-              TextField(
-                onChanged: (text) {
-                  cep = text;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'CEP',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+              // City Dropdown - Dynamic data loading
+              cidadeItems.isEmpty
+                  ? CircularProgressIndicator()
+                  : buildDropdownField<Cidade>(
+                      'Cidade',
+                      cidade,
+                      cidadeItems,
+                      (newValue) => setState(() => cidade = newValue),
+                      (Cidade cidade) => cidade.nome,
+                    ),
+              SizedBox(height: 10),
+
+              // Text field for "CEP"
+              buildTextField('CEP', (text) => cep = text),
               SizedBox(height: 20),
 
+              // Submit button
               Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    // Handle form submission
+                    // Handle form submission here
+                    print("Nome: $nome, CPF: $cpf, E-mail: $email, Cidade: ${cidade?.nome}");
                   },
                   child: const Text('Cadastrar'),
                 ),
@@ -180,22 +177,4 @@ String nome = '';
       ),
     );
   }
-
-  Future<void> selectDate() async {
-    // ignore: no_leading_underscores_for_local_identifiers
-    DateTime? _picked = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(2000),
-        lastDate: DateTime(2100));
-
-    if (_picked != null) {
-
-      setState(() {
-        _dateController.text = _picked.toString().split(" ")[0];
-      });
-    }
-  }
-
-  }
-
+}

@@ -1,30 +1,30 @@
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
 class Funcionario {
-  String id;
-  String nome;
-  String ocupacao;
-  String genero;
-  String cpf;
-  String email;
-  String endereco;
-  String cidade;
-  String cep;
+  String  id;
+  String  nome;
+  String  ocupacao;
+  String  genero;
+  String ? cpf;
+  String  email;
+  String ? endereco;
+  String ? cidade;
+  String ? cep;
   String senha;
-  String dataNascimento;
+  String ? dataNascimento;
 
   Funcionario({
     required this.id,
     required this.nome,
     required this.ocupacao,
     required this.genero,
-    required this.cpf,
+    this.cpf,
     required this.email,
-    required this.endereco,
-    required this.cidade,
-    required this.cep,
+    this.endereco,
+    this.cidade,
+    this.cep,
     required this.senha,
-    required this.dataNascimento,
+    this.dataNascimento,
   });
 
   factory Funcionario.fromParse(ParseObject object) {

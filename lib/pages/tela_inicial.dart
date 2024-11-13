@@ -70,7 +70,7 @@ void showError(String errorMessage) {
   void _onFuncionarioPressed () {
 
   Navigator.of(context).push(
-    MaterialPageRoute(builder: (context) => const FuncionarioPage()));
+    MaterialPageRoute(builder: (context) => const FuncionarioPageState()));
 
   }
 

@@ -45,7 +45,7 @@ class FuncionarioController {
   }
 
   Future<void> saveFuncionario(Funcionario funcionario) async {
-    // Função para criar o usuário ParseUser
+
     Future<String?> doUserRegistration(String email, String senha) async {
       final user = ParseUser.createUser(email, senha, email);
       final response = await user.signUp();
@@ -58,25 +58,23 @@ class FuncionarioController {
       }
     }
 
-    // Realiza o registro do usuário e captura o objectId
     final lastId = await doUserRegistration(funcionario.email, funcionario.senha);
     if (lastId == null) {
       print("Erro: não foi possível obter o objectId do usuário.");
       return;
     }
 
-    // Criar objeto Funcionario e salvar com referência ao usuario_id
     final funcionarioObject = ParseObject('funcionario')
       ..set('nome', funcionario.nome)
-      ..set('ocupacao_id', ParseObject('ocupacao')..objectId = funcionario.ocupacao) // Pointer para ocupacao
+      ..set('ocupacao_id', ParseObject('ocupacao')..objectId = funcionario.ocupacao) 
       ..set('genero', funcionario.genero)
       ..set('cpf', funcionario.cpf)
       ..set('email', funcionario.email)
       ..set('endereco', funcionario.endereco)
-      ..set('cidade_id', ParseObject('cidade')..objectId = funcionario.cidade) // Pointer para cidade
+      ..set('cidade_id', ParseObject('cidade')..objectId = funcionario.cidade) 
       ..set('cep', funcionario.cep)
       ..set('data_nascimento', funcionario.dataNascimento)
-      ..set('usuario_id', ParseObject('_User')..objectId = lastId); // Pointer para usuário
+      ..set('usuario_id', ParseObject('_User')..objectId = lastId); 
 
   print('Ocupacao ID: ${funcionario.ocupacao}');
 
@@ -88,4 +86,76 @@ class FuncionarioController {
       print('Funcionário salvo com sucesso!');
     }
   }
+
+  Future<List<Funcionario>> fetchFuncionarios() async {
+    List<Funcionario> funcionarioItems = [];
+    QueryBuilder<ParseObject> queryFuncionario =
+        QueryBuilder<ParseObject>(ParseObject('funcionario'))
+          ..includeObject(['ocupacao_id', 'cidade_id', 'usuario_id']);
+
+    final ParseResponse apiResponse = await queryFuncionario.query();
+
+    if (apiResponse.success && apiResponse.results != null) {
+      funcionarioItems = (apiResponse.results as List<ParseObject>)
+          .map((item) => Funcionario(
+                id: item.objectId!,
+                nome: item.get<String>('nome') ?? '',
+                ocupacao: item.get<ParseObject>('ocupacao_id')?.get<String>('nome_ocupacao') ?? '',
+                genero: item.get<String>('genero') ?? '',
+                email: item.get<String>('email') ?? '', senha: '',
+              ))
+          .toList();
+    }
+
+    return funcionarioItems;
+  }
+
+  Future<void> deleteFuncionario(String id) async {
+  try {
+    // Busca o objeto Funcionario pelo ID
+    final funcionarioObject = ParseObject('funcionario')..objectId = id;
+
+    // Deleta o objeto
+    final response = await funcionarioObject.delete();
+
+    if (response.success) {
+      print("Funcionário com ID $id excluído com sucesso.");
+    } else {
+      print("Erro ao excluir funcionário: ${response.error?.message}");
+    }
+  } catch (e) {
+    print("Erro ao excluir funcionário: $e");
+    throw Exception("Erro ao excluir funcionário: $e");
+  }
 }
+Future<void> updateFuncionario(Funcionario funcionario) async {
+  try {
+    final funcionarioObject = ParseObject('funcionario')..objectId = funcionario.id;
+
+    funcionarioObject
+      ..set('nome', funcionario.nome)
+      ..set('ocupacao_id', ParseObject('ocupacao')..objectId = funcionario.ocupacao)
+      ..set('genero', funcionario.genero)
+      ..set('cpf', funcionario.cpf)
+      ..set('email', funcionario.email)
+      ..set('endereco', funcionario.endereco)
+      ..set('cidade_id', ParseObject('cidade')..objectId = funcionario.cidade)
+      ..set('cep', funcionario.cep)
+      ..set('senha', funcionario.senha)
+      ..set('data_nascimento', funcionario.dataNascimento);
+
+    final response = await funcionarioObject.save();
+    if (response.success) {
+      print('Funcionario atualizado com sucesso!');
+    } else {
+      print('Erro ao atualizar funcionário');
+    }
+  } catch (e) {
+    print('Erro ao atualizar: $e');
+  }
+}
+
+
+}
+
+

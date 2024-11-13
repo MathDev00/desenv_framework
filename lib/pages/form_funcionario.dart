@@ -8,7 +8,9 @@ import 'package:revitalize_mobile/models/cidade.dart';
 import 'package:revitalize_mobile/widgets/app_bar.dart';
 
 class FormFuncionarioPage extends StatefulWidget {
-  const FormFuncionarioPage({super.key});
+  final Funcionario? funcionario; // Adicionando o campo para receber o funcionario
+
+  const FormFuncionarioPage({super.key, this.funcionario});
 
   @override
   _FormFuncionarioPageState createState() => _FormFuncionarioPageState();
@@ -17,19 +19,18 @@ class FormFuncionarioPage extends StatefulWidget {
 class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
   final FuncionarioController _controller = FuncionarioController();
 
-  // Variáveis de estado para os campos do formulário
   String nome = '';
-  String? ocupacaoId; // Armazena apenas o ID da ocupação
+  String? ocupacaoId;
   String? genero;
   String cpf = '';
   String email = '';
   String endereco = '';
-  String? cidadeId; // Armazena apenas o ID da cidade
+  String? cidadeId;
   String cep = '';
   String senha = '';
   String dataNascimento = '';
-  List<Ocupacao> ocupacaoItems = []; // Lista de Ocupações
-  List<Cidade> cidadeItems = []; // Lista de Cidades
+  List<Ocupacao> ocupacaoItems = [];
+  List<Cidade> cidadeItems = [];
   List<String> generoItems = ['Masculino', 'Feminino', 'Outro'];
 
   TextEditingController _dateController = TextEditingController();
@@ -37,36 +38,54 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
   @override
   void initState() {
     super.initState();
-    _loadOcupacoesECidades(); // Carregar ocupações e cidades ao inicializar
+    _loadOcupacoesECidades();
+
+    // Se o formulário for de edição, preenche os campos com os dados existentes
+    if (widget.funcionario != null) {
+      final funcionario = widget.funcionario!;
+      nome = funcionario.nome;
+      ocupacaoId = funcionario.ocupacao;
+      genero = funcionario.genero;
+      cpf = funcionario.cpf!;
+      email = funcionario.email;
+      endereco = funcionario.endereco!;
+      cidadeId = funcionario.cidade;
+      cep = funcionario.cep!;
+      dataNascimento = funcionario.dataNascimento!;
+
+      // Setando a data de nascimento
+      _dateController.text = dataNascimento;
+    }
   }
 
-  // Método para carregar ocupações e cidades
   Future<void> _loadOcupacoesECidades() async {
     ocupacaoItems = await _controller.fetchOcupacoes();
     cidadeItems = await _controller.fetchCidades();
-    setState(() {}); // Atualizar a UI quando os dados forem carregados
+    setState(() {});
   }
 
-  // Método para salvar o funcionário usando o controller
   Future<void> _saveFuncionario() async {
     final funcionario = Funcionario(
-      id: '',
+      id: widget.funcionario?.id ?? '', // Se tiver id, é edição, senão é cadastro
       nome: nome,
-      ocupacao: ocupacaoId ?? '', // usa o ID da ocupação
+      ocupacao: ocupacaoId ?? '',
       genero: genero ?? '',
       cpf: cpf,
       email: email,
       endereco: endereco,
-      cidade: cidadeId ?? '', // usa o ID da cidade
+      cidade: cidadeId ?? '',
       cep: cep,
       senha: senha,
       dataNascimento: dataNascimento,
     );
 
-    await _controller.saveFuncionario(funcionario);
+    if (funcionario.id.isEmpty) {
+      await _controller.saveFuncionario(funcionario); // Cadastro
+    } else {
+      await _controller.updateFuncionario(funcionario); // Edição
+    }
   }
 
-  // Método para selecionar a data de nascimento
   Future<void> _selectDate() async {
     DateTime? picked = await showDatePicker(
       context: context,
@@ -83,7 +102,6 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
     }
   }
 
-  // Métodos auxiliares para criar campos de formulário
   Widget buildTextField(String label, Function(String) onChanged, {bool obscureText = false}) {
     return TextField(
       onChanged: onChanged,
@@ -145,21 +163,21 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
 
               // Dropdown para ocupação
               buildDropdownField<Ocupacao>(
-                  'Ocupação', 
+                  'Ocupação',
                   ocupacaoItems.firstWhere(
-                    (item) => item.id == ocupacaoId, 
+                    (item) => item.id == ocupacaoId,
                     orElse: () => ocupacaoItems.isNotEmpty ? ocupacaoItems.first : ocupacaoItems[0]
-                  ), 
-                  ocupacaoItems, 
-                  (newValue) => setState(() => ocupacaoId = newValue?.id), 
+                  ),
+                  ocupacaoItems,
+                  (newValue) => setState(() => ocupacaoId = newValue?.id),
                   (Ocupacao ocupacao) => ocupacao.nome),
               SizedBox(height: 10),
 
               buildDropdownField<String>(
-                  'Gênero', 
-                  genero, 
+                  'Gênero',
+                  genero,
                   generoItems,
-                  (newValue) => setState(() => genero = newValue), 
+                  (newValue) => setState(() => genero = newValue),
                   (String genero) => genero),
               SizedBox(height: 10),
 
@@ -174,13 +192,13 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
 
               // Dropdown para cidade
               buildDropdownField<Cidade>(
-                  'Cidade', 
+                  'Cidade',
                   cidadeItems.firstWhere(
-                    (item) => item.id == cidadeId, 
+                    (item) => item.id == cidadeId,
                     orElse: () => cidadeItems.isNotEmpty ? cidadeItems.first : cidadeItems[0]
                   ),
-                  cidadeItems, 
-                  (newValue) => setState(() => cidadeId = newValue?.id), 
+                  cidadeItems,
+                  (newValue) => setState(() => cidadeId = newValue?.id),
                   (Cidade cidade) => cidade.nome),
               SizedBox(height: 10),
 
@@ -193,7 +211,7 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
               Center(
                 child: ElevatedButton(
                   onPressed: _saveFuncionario,
-                  child: const Text('Cadastrar'),
+                  child: const Text('Salvar'),
                 ),
               ),
             ],

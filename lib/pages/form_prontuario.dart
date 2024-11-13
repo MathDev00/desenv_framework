@@ -59,7 +59,6 @@ class __FormProntuarioPageState extends State<FormProntuarioPage> {
               const Center(child: Icon(Icons.person, size: 60)),
               const SizedBox(height: 20),
 
-              // Dropdown de Pacientes
               _buildDropdown(
                 label: 'Paciente',
                 value: paciente,
@@ -72,7 +71,6 @@ class __FormProntuarioPageState extends State<FormProntuarioPage> {
               ),
               const SizedBox(height: 10),
 
-              // Dropdown de Profissionais
               _buildDropdown(
                 label: 'Profissional',
                 value: profissional,
@@ -85,7 +83,6 @@ class __FormProntuarioPageState extends State<FormProntuarioPage> {
               ),
               const SizedBox(height: 10),
 
-              // Campo de Texto do Prontuário
               TextField(
                 onChanged: (text) {
                   prontuarioTexto = text;
@@ -98,7 +95,6 @@ class __FormProntuarioPageState extends State<FormProntuarioPage> {
               ),
               const SizedBox(height: 10),
 
-              // Campos de texto dinâmicos adicionados pelo usuário
               Column(
                 children: _controllers.map((controller) {
                   return Padding(
@@ -115,7 +111,6 @@ class __FormProntuarioPageState extends State<FormProntuarioPage> {
                 }).toList(),
               ),
 
-              // Botão para Adicionar Campo de Texto
               Center(
                 child: ElevatedButton(
                   onPressed: () {
@@ -128,7 +123,6 @@ class __FormProntuarioPageState extends State<FormProntuarioPage> {
               ),
               const SizedBox(height: 10),
 
-              // Botão para Remover o Último Campo de Texto
               Center(
                 child: ElevatedButton(
                   onPressed: () {
@@ -143,11 +137,9 @@ class __FormProntuarioPageState extends State<FormProntuarioPage> {
               ),
               const SizedBox(height: 20),
 
-              // Botão de Cadastrar
               Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    // Lógica de cadastro pode ser implementada aqui
                   },
                   child: const Text('Cadastrar'),
                 ),
@@ -159,7 +151,6 @@ class __FormProntuarioPageState extends State<FormProntuarioPage> {
     );
   }
 
-  // Widget de Dropdown com Label
   Widget _buildDropdown({
     required String label,
     required String? value,
