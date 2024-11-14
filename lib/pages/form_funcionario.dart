@@ -79,11 +79,8 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
       dataNascimento: dataNascimento,
     );
 
-    if (funcionario.id.isEmpty) {
       await _controller.saveFuncionario(funcionario); // Cadastro
-    } else {
-      await _controller.updateFuncionario(funcionario); // Edição
-    }
+    
   }
 
   Future<void> _selectDate() async {

@@ -7,6 +7,7 @@ import 'package:revitalize_mobile/widgets/custom_table.dart';
 import 'package:revitalize_mobile/widgets/app_bar.dart';
 import 'package:revitalize_mobile/controllers/funcionario.dart';
 import 'package:revitalize_mobile/models/funcionario.dart';
+import 'package:revitalize_mobile/widgets/custom_text.dart';
 
 
 class FuncionarioPageState extends StatefulWidget {
@@ -66,7 +67,7 @@ class _FuncionarioPageState extends State<FuncionarioPageState> {
 void _editFuncionario(Funcionario funcionario) {
   Navigator.of(context).push(
     MaterialPageRoute(
-      builder: (context) => FormFuncionarioPage(funcionario: funcionario), // Passando o funcionario para edição
+      builder: (context) => FormFuncionarioPage(funcionario: funcionario), 
     ),
   );
 }
@@ -92,6 +93,7 @@ void _editFuncionario(Funcionario funcionario) {
                 return Wrap(
                   spacing: 16,
                   runSpacing: 16,
+
                   children: [
                     Center(
                       child: IconButton(
@@ -161,85 +163,3 @@ void _editFuncionario(Funcionario funcionario) {
 }
 
 
-class CustomTextWidget extends StatelessWidget {
-  final List<String> titulo;
-  final List<String> dados;
-  final VoidCallback onDelete; 
-  final VoidCallback onEdit;   
-
-  // ignore: prefer_const_constructors_in_immutables, use_key_in_widget_constructors
-  CustomTextWidget({
-    required this.titulo,
-    required this.dados,
-    required this.onDelete, 
-    required this.onEdit,   
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 32.0), // Top spacing
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(150, 173, 216, 230),
-          borderRadius: BorderRadius.circular(12.0), 
-          border: Border.all(
-            color: const Color.fromARGB(150, 173, 216, 230),
-            width: 2.0, // Border width
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start, 
-            children: [
-              ...List.generate(titulo.length, (index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: RichText(
-                    text: TextSpan(
-                      text: '${titulo[index]}: ',
-                      style: TextStyle(
-                        fontSize: 18.0, 
-                        fontWeight: FontWeight.bold, 
-                        color: Colors.grey, 
-                      ),
-                      children: [
-                        TextSpan(
-                          text: dados[index],
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold, 
-                            color: Colors.black, 
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end, 
-                children: [
-                  IconButton(
-                    onPressed: onEdit,
-                    icon: const Icon(Icons.edit),
-                    tooltip: 'Editar',
-                  ),
-                  IconButton(
-                    onPressed: onDelete, 
-                    icon: const Icon(Icons.delete_outline),
-                    tooltip: 'Excluir',
-                    color: Colors.red, 
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

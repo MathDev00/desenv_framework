@@ -1,55 +1,80 @@
 import 'package:flutter/material.dart';
-import 'package:revitalize_mobile/controllers/funcionario.dart'; // Controller to fetch cities
-import 'package:revitalize_mobile/widgets/app_bar.dart'; // Custom AppBar Widget
-import 'package:revitalize_mobile/models/cidade.dart'; // Cidade model
+import 'package:revitalize_mobile/controllers/paciente.dart';
+import 'package:revitalize_mobile/models/paciente.dart';
+import 'package:revitalize_mobile/models/cidade.dart';
+import 'package:revitalize_mobile/widgets/app_bar.dart';
 
 class FormPacientePage extends StatefulWidget {
-  const FormPacientePage({super.key});
+  final Paciente? paciente; // Recebe um paciente, caso haja edição
+
+  const FormPacientePage({super.key, this.paciente});
 
   @override
   _FormPacientePageState createState() => _FormPacientePageState();
 }
 
 class _FormPacientePageState extends State<FormPacientePage> {
-  final FuncionarioController _funcionarioController = FuncionarioController();
+  final PacienteController _controller = PacienteController();
 
   String nome = '';
-  String ocupacao = ''; // Occupation (not used here yet)
-  String genero = ''; // Gender
   String cpf = '';
   String email = '';
   String endereco = '';
-  Cidade? cidade; // Store selected city as a Cidade object
+  String? cidadeId;
   String cep = '';
-  String senha = '';
   String dataNascimento = '';
-
-  final List<String> generoItems = ['Masculino', 'Feminino', 'Outro'];
-  List<Cidade> cidadeItems = []; // Dynamically fetched cities
+  List<Cidade> cidadeItems = [];
 
   TextEditingController _dateController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _loadCidades(); // Load cities when the page initializes
+    _loadCidades();
+
+    if (widget.paciente != null) {
+      final paciente = widget.paciente!;
+      nome = paciente.nome;
+      cpf = paciente.cpf!;
+      email = paciente.email;
+      endereco = paciente.endereco!;
+      cidadeId = paciente.cidade; // Recebe o ID da cidade
+      cep = paciente.cep!;
+      dataNascimento = paciente.dataNascimento!;
+      _dateController.text = dataNascimento;
+    }
   }
 
-  // Fetch cities from the backend via the FuncionarioController
   Future<void> _loadCidades() async {
-    List<Cidade> cidades = await _funcionarioController.fetchCidades();
-    setState(() {
-      cidadeItems = cidades;
-    });
+    cidadeItems = await _controller.fetchCidades();
+    setState(() {});
   }
 
-  // Method to handle date selection
-  Future<void> selectDate() async {
+  Future<void> _savePaciente() async {
+    final paciente = Paciente(
+      id: widget.paciente?.id ?? '', // Se for um novo paciente, id estará vazio
+      nome: nome,
+      cpf: cpf,
+      email: email,
+      endereco: endereco,
+      cidade: cidadeId ?? '',
+      cep: cep,
+      dataNascimento: dataNascimento,
+
+    );
+
+    if (paciente.id.isEmpty) {
+      await _controller.savePaciente(paciente); // Cadastro
+    } else {
+    }
+  }
+
+  Future<void> _selectDate() async {
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
     );
 
     if (picked != null) {
@@ -60,7 +85,6 @@ class _FormPacientePageState extends State<FormPacientePage> {
     }
   }
 
-  // Build text input fields with dynamic value updates
   Widget buildTextField(String label, Function(String) onChanged, {bool obscureText = false}) {
     return TextField(
       onChanged: onChanged,
@@ -72,7 +96,6 @@ class _FormPacientePageState extends State<FormPacientePage> {
     );
   }
 
-  // Build dropdown fields
   Widget buildDropdownField<T>(
       String label, T? value, List<T> items, Function(T?) onChanged, String Function(T) getItemLabel) {
     return DropdownButtonFormField<T>(
@@ -104,11 +127,9 @@ class _FormPacientePageState extends State<FormPacientePage> {
               Center(child: Icon(Icons.person, size: 60)),
               SizedBox(height: 20),
 
-              // Text field for "Nome"
               buildTextField('Nome', (text) => nome = text),
               SizedBox(height: 20),
 
-              // Date picker for "Data de Nascimento"
               TextField(
                 controller: _dateController,
                 decoration: InputDecoration(
@@ -119,56 +140,38 @@ class _FormPacientePageState extends State<FormPacientePage> {
                       borderSide: BorderSide(color: Colors.blue)),
                 ),
                 readOnly: true,
-                onTap: selectDate,
+                onTap: _selectDate,
               ),
               SizedBox(height: 10),
 
-              // Gender Dropdown
-              buildDropdownField<String>(
-                'Gênero',
-                genero.isEmpty ? null : genero,
-                generoItems,
-                (newValue) => setState(() => genero = newValue!),
-                (String genero) => genero,
-              ),
-              SizedBox(height: 10),
-
-              // Text field for "CPF"
               buildTextField('CPF', (text) => cpf = text),
               SizedBox(height: 10),
 
-              // Text field for "E-mail"
               buildTextField('E-mail', (text) => email = text),
               SizedBox(height: 10),
 
-              // Text field for "Endereço"
               buildTextField('Endereço', (text) => endereco = text),
               SizedBox(height: 10),
 
-              // City Dropdown - Dynamic data loading
-              cidadeItems.isEmpty
-                  ? CircularProgressIndicator()
-                  : buildDropdownField<Cidade>(
-                      'Cidade',
-                      cidade,
-                      cidadeItems,
-                      (newValue) => setState(() => cidade = newValue),
-                      (Cidade cidade) => cidade.nome,
-                    ),
+              // Dropdown para cidade
+              buildDropdownField<Cidade>(
+                  'Cidade',
+                  cidadeItems.firstWhere(
+                    (item) => item.id == cidadeId,
+                    orElse: () => cidadeItems.isNotEmpty ? cidadeItems.first : cidadeItems[0]
+                  ),
+                  cidadeItems,
+                  (newValue) => setState(() => cidadeId = newValue?.id),
+                  (Cidade cidade) => cidade.nome),
               SizedBox(height: 10),
 
-              // Text field for "CEP"
               buildTextField('CEP', (text) => cep = text),
               SizedBox(height: 20),
 
-              // Submit button
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Handle form submission here
-                    print("Nome: $nome, CPF: $cpf, E-mail: $email, Cidade: ${cidade?.nome}");
-                  },
-                  child: const Text('Cadastrar'),
+                  onPressed: _savePaciente,
+                  child: const Text('Salvar'),
                 ),
               ),
             ],
