@@ -76,7 +76,7 @@ class FuncionarioController {
       ..set('data_nascimento', funcionario.dataNascimento)
       ..set('usuario_id', ParseObject('_User')..objectId = lastId); 
 
-  print('Ocupacao ID: ${funcionario.ocupacao}');
+  //print('Ocupacao ID: ${funcionario.ocupacao}');
 
     final response = await funcionarioObject.save();
 

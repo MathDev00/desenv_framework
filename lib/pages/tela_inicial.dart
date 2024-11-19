@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:revitalize_mobile/pages/login_page.dart';
 import 'package:revitalize_mobile/pages/funcionario_page.dart';
 import 'package:revitalize_mobile/pages/paciente_page.dart';
+import 'package:revitalize_mobile/pages/prontuario_paciente.dart';
 import 'package:revitalize_mobile/pages/prontuarios_page.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
@@ -89,6 +90,13 @@ void showError(String errorMessage) {
 
   }
 
+   void _onProntuariosPacientePressed () {
+
+  Navigator.of(context).push(
+    MaterialPageRoute(builder: (context) =>  ProntuarioPacientePage()));
+
+  }
+
 
        void doUserLogout() async {
        final user = await ParseUser.currentUser() as ParseUser;
@@ -126,27 +134,6 @@ void showError(String errorMessage) {
         padding: const EdgeInsets.all(20),
         children: [
           GestureDetector(
-            onTap: _onProntuariosPressed, 
-            child: Container(
-              height: 100,
-              width: 300,
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(150, 173, 216, 230),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              margin: const EdgeInsets.only(bottom: 10), // Ajusta a margem inferior
-              child: const Text(
-                "Prontuários",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          GestureDetector(
             onTap: _onPacientePressed, // Chama a função ao pressionar
             child: Container(
               height: 100,
@@ -180,6 +167,27 @@ void showError(String errorMessage) {
               margin: const EdgeInsets.only(bottom: 10), // Ajusta a margem inferior
               child: const Text(
                 "Funcionário",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+              GestureDetector(
+            onTap: _onProntuariosPacientePressed,
+            child: Container(
+              height: 100,
+              width: 300,
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(150, 173, 216, 230),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              margin: const EdgeInsets.only(bottom: 10), // Ajusta a margem inferior
+              child: const Text(
+                "Prontuario",
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 14,

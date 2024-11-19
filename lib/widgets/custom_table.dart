@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:revitalize_mobile/pages/prontuario_detalhado.dart';
 import 'package:revitalize_mobile/pages/tela_inicial.dart';
+import 'package:revitalize_mobile/testes/home_page.dart';
 import 'package:revitalize_mobile/widgets/custom_pront.dart';
 
 class CustomTable extends StatelessWidget {
@@ -233,17 +234,10 @@ class CustomTable extends StatelessWidget {
                       IconButton(
                         onPressed: () {
                         Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) =>  ProntuarioDetalhadoPageState(
+                        MaterialPageRoute(builder: (context) =>  HomePage(
                           
-                          dados: [
-                            
-                          dados[0], 
-                          dados[1], 
-                          dados[2],
-                          dados[3],
-                          dados[4], 
-                          dados[5], 
-                          ])));                        },
+        
+                          )));                        },
                         icon: const Icon(Icons.pageview_outlined),
                         tooltip: 'Editar',
                       ),

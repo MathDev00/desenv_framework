@@ -48,7 +48,7 @@ class PacienteController {
 
     if (apiResponse.success && apiResponse.results != null) {
       for (var item in apiResponse.results as List<ParseObject>) {
-        print('Item do paciente: ${item.toString()}');
+       //debug do código ->  print('Item do paciente: ${item.toString()}');
 
         String cidadeId = item.get<ParseObject>('cidade_id')?.objectId ?? '';
 

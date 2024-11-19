@@ -54,64 +54,66 @@ class _PacientePageState extends State<PacientePage> {
     _fetchPacientes(); 
   }
 
-  @override
-  Widget build(BuildContext context) {
-    List<String> nomeCampo = [
-      'Id',
-      'Paciente',
-      'Data Nascimento',
-      'E-mail',
-      'Endereço',
-      'Cidade',
-      'CEP',
-    ];
+ @override
+Widget build(BuildContext context) {
+  List<String> nomeCampo = [
+    'Id',
+    'Paciente',
+    'Data Nascimento',
+    'E-mail',
+    'Endereço',
+    'Cidade',
+    'CEP',
+  ];
 
-    return Scaffold(
-      appBar: CustomAppBar(title: "Pacientes"),
-      body: SingleChildScrollView(
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            if (constraints.maxWidth >= 600) {
-              return Column(
-                children: [
-                  IconButton(
-                    onPressed: _addPaciente,
-                    icon: const Icon(Icons.add),
-                    tooltip: 'Adicionar',
-                  ),
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
-                    children: List.generate(pacientes.length, (index) {
-                      return CustomTextWidget(
-                        titulo: nomeCampo,
-                        dados: [
-                          pacientes[index].id,
-                          pacientes[index].nome,
-                          pacientes[index].dataNascimento,
-                          pacientes[index].email,
-                          pacientes[index].endereco,
-                          pacientes[index].cidade,
-                          pacientes[index].cep,
-                        ],
-                        onDelete: () => _deletePaciente(pacientes[index].id, index),
-                        onEdit: () => _deletePaciente(pacientes[index].id, index), 
-                      );
-                    }),
-                  ),
-                ],
-              );
-            } else {
-              return Column(
-                children: [
-                  IconButton(
-                    onPressed: _addPaciente,
-                    icon: const Icon(Icons.add),
-                    tooltip: 'Adicionar',
-                  ),
-                  SizedBox(height: 8),
-                  ...List.generate(pacientes.length, (index) {
-                    return CustomTable(
+  return Scaffold(
+    appBar: CustomAppBar(title: "Pacientes"),
+    body: SingleChildScrollView(
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          if (constraints.maxWidth >= 600) {
+            return Column(
+              children: [
+                IconButton(
+                  onPressed: _addPaciente,
+                  icon: const Icon(Icons.add),
+                  tooltip: 'Adicionar',
+                ),
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: List.generate(pacientes.length, (index) {
+                    return CustomTextWidget(
+                      titulo: nomeCampo,
+                      dados: [
+                        pacientes[index].id,
+                        pacientes[index].nome,
+                        pacientes[index].dataNascimento,
+                        pacientes[index].email,
+                        pacientes[index].endereco,
+                        pacientes[index].cidade,
+                        pacientes[index].cep,
+                      ],
+                      onDelete: () => _deletePaciente(pacientes[index].id, index),
+                      onEdit: () => _deletePaciente(pacientes[index].id, index),
+                    );
+                  }),
+                ),
+              ],
+            );
+          } else {
+            return Column(
+              children: [
+                IconButton(
+                  onPressed: _addPaciente,
+                  icon: const Icon(Icons.add),
+                  tooltip: 'Adicionar',
+                ),
+                SizedBox(height: 8), // Espaço entre o botão e o primeiro item
+                ...List.generate(pacientes.length, (index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0), // espaçamento entre os itens
+                    child: CustomTable(
                       quantidadeCampo: '8',
                       nomeCampo: nomeCampo,
                       dados: [
@@ -123,13 +125,107 @@ class _PacientePageState extends State<PacientePage> {
                         pacientes[index].cidade,
                         pacientes[index].cep,
                       ],
-                    );
-                  }),
-                  SizedBox(height: 8),
-                ],
-              );
-            }
-          },
+                    ),
+                  );
+                }),
+              ],
+            );
+          }
+        },
+      ),
+    ),
+  );
+}
+
+}
+
+
+class CustomTextWidget extends StatelessWidget {
+  final List<String> titulo;
+  final List<String> dados;
+  final VoidCallback onDelete;  // Callback para deletar
+  final VoidCallback onEdit;    // Callback para editar
+
+  // Construtor com os parâmetros necessários
+  CustomTextWidget({
+    required this.titulo,
+    required this.dados,
+    required this.onDelete,  // Define o parâmetro onDelete
+    required this.onEdit,    // Define o parâmetro onEdit
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 300,  // Controlando a largura para permitir vários widgets lado a lado
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(150, 173, 216, 230),
+        borderRadius: BorderRadius.circular(12.0),
+        border: Border.all(
+          color: const Color.fromARGB(150, 173, 216, 230),
+          width: 2.0,  // Largura da borda
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Exibindo cada item de dados
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: List.generate(titulo.length, (index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: RichText(
+                          text: TextSpan(
+                            text: '${titulo[index]}: ',
+                            style: TextStyle(
+                              fontSize: 14.0,  // Tamanho de fonte menor para compactação
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: dados[index],
+                                style: TextStyle(
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+                // Colocando os botões de editar e excluir
+                Column(
+                  children: [
+                    IconButton(
+                      onPressed: onEdit,  // Ao clicar, executa o método onEdit
+                      icon: const Icon(Icons.edit),
+                      tooltip: 'Editar',
+                      iconSize: 20.0,  // Tamanho menor do ícone
+                    ),
+                    IconButton(
+                      onPressed: onDelete,  // Ao clicar, executa o método onDelete
+                      icon: const Icon(Icons.delete_outline),
+                      tooltip: 'Excluir',
+                      color: Colors.red,
+                      iconSize: 20.0,  // Tamanho menor do ícone
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
