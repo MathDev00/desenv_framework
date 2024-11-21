@@ -5,26 +5,26 @@ class Funcionario {
   String  nome;
   String  ocupacao;
   String  genero;
-  String ? cpf;
+  String  cpf;
   String  email;
-  String ? endereco;
-  String ? cidade;
-  String ? cep;
+  String  endereco;
+  String  cidade;
+  String  cep;
   String senha;
-  String ? dataNascimento;
+  String  dataNascimento;
 
   Funcionario({
     required this.id,
     required this.nome,
     required this.ocupacao,
     required this.genero,
-    this.cpf,
+    required this.cpf,
     required this.email,
-    this.endereco,
-    this.cidade,
-    this.cep,
+    required this.endereco,
+    required this.cidade,
+    required this.cep,
     required this.senha,
-    this.dataNascimento,
+    required this.dataNascimento,
   });
 
   factory Funcionario.fromParse(ParseObject object) {
@@ -39,7 +39,7 @@ class Funcionario {
       cidade: object.get<String>('cidade') ?? '',
       cep: object.get<String>('cep') ?? '',
       senha: object.get<String>('senha') ?? '',
-      dataNascimento: object.get<String>('dataNascimento') ?? '',
+      dataNascimento: object.get<String>('data_nascimento') ?? '',
     );
   }
 }

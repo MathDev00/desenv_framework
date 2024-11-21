@@ -40,7 +40,6 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
     super.initState();
     _loadOcupacoesECidades();
 
-    // Se o formulário for de edição, preenche os campos com os dados existentes
     if (widget.funcionario != null) {
       final funcionario = widget.funcionario!;
       nome = funcionario.nome;
@@ -53,7 +52,6 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
       cep = funcionario.cep!;
       dataNascimento = funcionario.dataNascimento!;
 
-      // Setando a data de nascimento
       _dateController.text = dataNascimento;
     }
   }
@@ -66,7 +64,7 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
 
   Future<void> _saveFuncionario() async {
     final funcionario = Funcionario(
-      id: widget.funcionario?.id ?? '', // Se tiver id, é edição, senão é cadastro
+      id: widget.funcionario?.id ?? '', 
       nome: nome,
       ocupacao: ocupacaoId ?? '',
       genero: genero ?? '',
@@ -79,8 +77,7 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
       dataNascimento: dataNascimento,
     );
 
-      await _controller.saveFuncionario(funcionario); // Cadastro
-    
+      await _controller.saveFuncionario(funcionario); 
   }
 
   Future<void> _selectDate() async {

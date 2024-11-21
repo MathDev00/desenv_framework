@@ -1,6 +1,5 @@
-// ignore_for_file: use_key_in_widget_constructors
-
 import 'package:flutter/material.dart';
+import 'package:revitalize_mobile/pages/form_edit_funcionario.dart';
 import 'package:revitalize_mobile/pages/form_funcionario.dart';
 import 'package:revitalize_mobile/testes/home_page.dart';
 import 'package:revitalize_mobile/widgets/custom_table.dart';
@@ -8,7 +7,6 @@ import 'package:revitalize_mobile/widgets/app_bar.dart';
 import 'package:revitalize_mobile/controllers/funcionario.dart';
 import 'package:revitalize_mobile/models/funcionario.dart';
 import 'package:revitalize_mobile/widgets/custom_text.dart';
-
 
 class FuncionarioPageState extends StatefulWidget {
   const FuncionarioPageState({super.key});
@@ -47,31 +45,30 @@ class _FuncionarioPageState extends State<FuncionarioPageState> {
     }
   }
 
- void _deleteFuncionario(int index) async {
-  try {
-    final funcionarioId = _funcionarios[index].id;
+  void _deleteFuncionario(int index) async {
+    try {
+      final funcionarioId = _funcionarios[index].id;
 
-    await _controller.deleteFuncionario(funcionarioId);
+      await _controller.deleteFuncionario(funcionarioId);
 
-    setState(() {
-      _funcionarios.removeAt(index);
-    });
-  } catch (e) {
-    print("Erro ao excluir funcionário: $e");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Erro ao excluir funcionário: $e")),
+      setState(() {
+        _funcionarios.removeAt(index);
+      });
+    } catch (e) {
+      print("Erro ao excluir funcionário: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erro ao excluir funcionário: $e")),
+      );
+    }
+  }
+
+  void _editFuncionario(Funcionario funcionario) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => FormEditFuncionarioPage(funcionario: funcionario),
+      ),
     );
   }
-}
-
-void _editFuncionario(Funcionario funcionario) {
-  Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (context) => FormFuncionarioPage(funcionario: funcionario), 
-    ),
-  );
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +82,7 @@ void _editFuncionario(Funcionario funcionario) {
       backgroundColor: Colors.white,
       appBar: CustomAppBar(title: "Funcionários"),
       body: Container(
-        color: Colors.white, 
+        color: Colors.white,
         child: SingleChildScrollView(
           child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
@@ -93,36 +90,44 @@ void _editFuncionario(Funcionario funcionario) {
                 return Wrap(
                   spacing: 16,
                   runSpacing: 16,
-
                   children: [
                     Center(
                       child: IconButton(
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                                builder: (context) => const FormFuncionarioPage()),
+                                builder: (context) =>
+                                    const FormFuncionarioPage()),
                           );
                         },
                         icon: const Icon(Icons.add),
                         tooltip: 'Adicionar',
                       ),
                     ),
-                    ..._funcionarios.map((funcionario) => CustomTextWidget(
-                          titulo: nomeCampo,
-                          dados: [
-                            funcionario.id,
-                            funcionario.nome,
-                            funcionario.ocupacao,
-                            funcionario.genero,
-                            funcionario.email,                            
-                          ],
-                          onDelete: () {
-                            _deleteFuncionario(_funcionarios.indexOf(funcionario)); 
-                          },
-                          onEdit: () {
-                            _editFuncionario(funcionario); 
-  },
+                    SizedBox(
+                        height: 8), 
+                    ..._funcionarios.map((funcionario) => Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: CustomTextWidget(
+                            titulo: nomeCampo,
+                            dados: [
+                              funcionario.id,
+                              funcionario.nome,
+                              funcionario.ocupacao,
+                              funcionario.genero,
+                              funcionario.email,
+                            ],
+                            onDelete: () {
+                              _deleteFuncionario(
+                                  _funcionarios.indexOf(funcionario));
+                            },
+                            onEdit: () {
+                              _editFuncionario(funcionario);
+                            },
+                          ),
                         )),
+
+                    SizedBox(height: 8),
                   ],
                 );
               } else {
@@ -133,7 +138,8 @@ void _editFuncionario(Funcionario funcionario) {
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                                builder: (context) => const FormFuncionarioPage()),
+                                builder: (context) =>
+                                    const FormFuncionarioPage()),
                           );
                         },
                         icon: const Icon(Icons.add),
@@ -141,15 +147,18 @@ void _editFuncionario(Funcionario funcionario) {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    ..._funcionarios.map((funcionario) => CustomTable(
-                          quantidadeCampo: '4',
-                          nomeCampo: nomeCampo,
-                          dados: [
-                            funcionario.id,
-                            funcionario.nome,
-                            funcionario.ocupacao,
-                            funcionario.genero,
-                          ],
+                    ..._funcionarios.map((funcionario) => Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: CustomTable(
+                            quantidadeCampo: '4',
+                            nomeCampo: nomeCampo,
+                            dados: [
+                              funcionario.id,
+                              funcionario.nome,
+                              funcionario.ocupacao,
+                              funcionario.genero,
+                            ],
+                          ),
                         )),
                   ],
                 );
@@ -161,5 +170,3 @@ void _editFuncionario(Funcionario funcionario) {
     );
   }
 }
-
-

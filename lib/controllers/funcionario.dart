@@ -101,8 +101,14 @@ class FuncionarioController {
                 id: item.objectId!,
                 nome: item.get<String>('nome') ?? '',
                 ocupacao: item.get<ParseObject>('ocupacao_id')?.get<String>('nome_ocupacao') ?? '',
+                cidade: item.get<ParseObject>('cidade_id')?.get<String>('cidade_nome') ?? '',
                 genero: item.get<String>('genero') ?? '',
-                email: item.get<String>('email') ?? '', senha: '',
+                email: item.get<String>('email') ?? '', 
+                senha: item.get<String>('senha')  ?? '', 
+                cpf: item.get<String>('cpf') ?? '', 
+                endereco: item.get<String>('endereco') ?? '', 
+                cep: item.get<String>('cep') ?? '', 
+                dataNascimento: item.get<String>('data_nascimento') ?? '',
               ))
           .toList();
     }
