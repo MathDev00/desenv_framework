@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:revitalize_mobile/controllers/prontuario.dart';
 import 'package:revitalize_mobile/models/prontuario.dart';
+import 'package:revitalize_mobile/pages/form_edit_prontuario.dart';
 import 'package:revitalize_mobile/pages/prontuario_detalhado.dart'; // Página de detalhes
+//import 'package:revitalize_mobile/pages/editar_prontuario.dart'; // Nova página para edição
+import 'package:revitalize_mobile/testes/home_page.dart';
 import 'package:revitalize_mobile/widgets/app_bar.dart';
 
 class ProntuariosByPage extends StatefulWidget {
@@ -91,6 +94,7 @@ class _ProntuariosByPageState extends State<ProntuariosByPage> {
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // Botão de Visualizar
                       IconButton(
                         icon: const Icon(Icons.pageview_outlined),
                         onPressed: () {
@@ -104,6 +108,21 @@ class _ProntuariosByPageState extends State<ProntuariosByPage> {
                           );
                         },
                       ),
+                      // Botão de Editar
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditarProntuarioPage(
+                              prontuario: prontuario, // Passa o prontuário para a página de edição
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      // Botão de Excluir
                       IconButton(
                         icon: const Icon(Icons.delete),
                         onPressed: () {

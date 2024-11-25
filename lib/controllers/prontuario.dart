@@ -5,22 +5,19 @@ import 'package:revitalize_mobile/models/campo_adicional.dart';
 import 'package:revitalize_mobile/models/prontuario.dart';
 
 class ProntuarioController {
+
+
  Future<List<Prontuario>> fetchProntuariosByPaciente(String pacienteId) async {
   List<Prontuario> prontuarios = [];
 
-  // Criando um ParseObject para o paciente usando o pacienteId
   ParseObject pacientePointer = ParseObject('paciente')..objectId = pacienteId;
 
-  // Criando a consulta na tabela 'ficha'
   QueryBuilder<ParseObject> queryProntuario = QueryBuilder<ParseObject>(ParseObject('ficha'));
 
-  // Usando o Pointer para o campo 'paciente_id'
   queryProntuario.whereEqualTo('paciente_id', pacientePointer);
 
-  // Incluindo as referências para 'paciente_id' e 'funcionario_id'
   queryProntuario.includeObject(['paciente_id', 'funcionario_id']);
 
-  // Executando a consulta
   final ParseResponse apiResponse = await queryProntuario.query();
 
   if (apiResponse.success && apiResponse.results != null) {
@@ -37,14 +34,12 @@ class ProntuarioController {
         pacienteNome = paciente.get<String>('nome') ?? 'Nome não disponível';
       }
 
-      // Obtendo o profissional associado
       ParseObject? profissional = item.get<ParseObject>('funcionario_id');
       if (profissional != null) {
         profissionalId = profissional.objectId ?? '';
         profissionalNome = profissional.get<String>('nome') ?? 'Nome não disponível';
       }
 
-      // Criando o objeto Prontuario
       prontuarios.add(Prontuario(
         id: item.objectId!,
         pacienteId: pacienteId,
@@ -52,9 +47,9 @@ class ProntuarioController {
         pacienteNome: pacienteNome,
         profissionalNome: profissionalNome,
         textoProntuario: item.get<String>('conteudo') ?? '',
-        camposAdicionais: [], // Campos adicionais podem ser preenchidos conforme necessário
+        camposAdicionais: [], 
         data: item.get<String>('data') ?? '',
-        createdAt: item.createdAt ?? DateTime.now(), // Atribuindo a data de criação
+        createdAt: item.createdAt ?? DateTime.now(), 
       ));
     }
   }
@@ -91,7 +86,7 @@ class ProntuarioController {
 
   QueryBuilder<ParseObject> queryCampoAdicional = QueryBuilder<ParseObject>(ParseObject('campo_adicional'));
 
-  // Filtro para buscar os campos adicionais do prontuário específico
+
   queryCampoAdicional.whereEqualTo('id_ficha', ParseObject('ficha')..objectId = prontuarioId);
 
   final ParseResponse apiResponse = await queryCampoAdicional.query();
@@ -112,32 +107,26 @@ class ProntuarioController {
   Future<List<Prontuario>> fetchProntuarios() async {
     List<Prontuario> prontuarios = [];
 
-    // Criando o QueryBuilder para a classe 'ficha' (prontuário)
     QueryBuilder<ParseObject> queryProntuario =
         QueryBuilder<ParseObject>(ParseObject('ficha'));
 
-    // Incluindo as referências de 'paciente_id' e 'funcionario_id'
     queryProntuario.includeObject(['paciente_id', 'funcionario_id']);
 
-    // Executando a consulta
     final ParseResponse apiResponse = await queryProntuario.query();
 
     if (apiResponse.success && apiResponse.results != null) {
-      // Iterando pelos resultados e criando a lista de Prontuarios
       for (var item in apiResponse.results as List<ParseObject>) {
         String pacienteId = '';
         String pacienteNome = '';
         String profissionalId = '';
         String profissionalNome = '';
 
-        // Verificando e obtendo os dados do paciente
         ParseObject? paciente = item.get<ParseObject>('paciente_id');
         if (paciente != null) {
           pacienteId = paciente.objectId ?? '';
           pacienteNome = paciente.get<String>('nome') ?? 'Nome não disponível';
         }
 
-        // Verificando e obtendo os dados do profissional
         ParseObject? profissional = item.get<ParseObject>('funcionario_id');
         if (profissional != null) {
           profissionalId = profissional.objectId ?? '';
@@ -145,7 +134,6 @@ class ProntuarioController {
               profissional.get<String>('nome') ?? 'Nome não disponível';
         }
 
-        // Criando o objeto Prontuario com o campo createdAt
         prontuarios.add(Prontuario(
           id: item.objectId!,
           pacienteId: pacienteId,
@@ -153,19 +141,17 @@ class ProntuarioController {
           pacienteNome: pacienteNome,
           profissionalNome: profissionalNome,
           textoProntuario: item.get<String>('conteudo') ?? '',
-          camposAdicionais: [], // Campos adicionais podem ser preenchidos conforme necessário
+          camposAdicionais: [], 
           data: item.get<String>('data') ?? '',
           createdAt:
-              item.createdAt ?? DateTime.now(), // Atribuindo a data de criação
+              item.createdAt ?? DateTime.now(), 
         ));
       }
     }
 
     return prontuarios;
   }
-  // Buscar campos adicionais de um prontuário específico
 
-  // Fetch Pacientes
   Future<List<Paciente>> fetchPacientes() async {
     List<Paciente> pacienteItems = [];
     QueryBuilder<ParseObject> queryPaciente =
@@ -205,7 +191,6 @@ class ProntuarioController {
     return funcionarioItems;
   }
 
-  // Cadastrar Prontuário
   Future<void> cadastrarProntuario(Prontuario prontuario) async {
     final ParseObject prontuarioParse = ParseObject('ficha');
     prontuarioParse.set(
@@ -218,7 +203,6 @@ class ProntuarioController {
     final ParseResponse prontuarioResponse = await prontuarioParse.save();
 
     if (prontuarioResponse.success) {
-      // Buscar ou criar a ficha
       final ficha = prontuarioResponse.result as ParseObject;
 
       // Salvar campos adicionais
@@ -233,7 +217,6 @@ class ProntuarioController {
     }
   }
 
-  // Buscar paciente pelo ID
   Future<ParseObject> _getPaciente(String pacienteId) async {
     final QueryBuilder<ParseObject> query =
         QueryBuilder<ParseObject>(ParseObject('paciente'))
@@ -271,14 +254,12 @@ class ProntuarioController {
     }
   }
 
-  // Salvar campos adicionais
   Future<void> _saveCampoAdicional(
       ParseObject ficha, CampoAdicional campo) async {
     final ParseObject campoAdicionalParse = ParseObject('campo_adicional');
 
-    // Associando o campo adicional à ficha
     campoAdicionalParse.set(
-        'id_ficha', ficha); // Usamos 'ficha' e não 'paciente'
+        'id_ficha', ficha); 
     campoAdicionalParse.set('conteudo', campo.valor);
 
     final ParseResponse response = await campoAdicionalParse.save();
@@ -293,7 +274,6 @@ class ProntuarioController {
   Future<void> deleteProntuario(String prontuarioId) async {
     final ParseObject prontuarioParse = ParseObject('ficha')..objectId = prontuarioId;
 
-    // Realiza a exclusão no servidor
     final ParseResponse response = await prontuarioParse.delete();
 
     if (response.success) {
@@ -303,4 +283,41 @@ class ProntuarioController {
       throw Exception("Erro ao excluir prontuário: ${response.error?.message}");
     }
   }
+
+Future<void> atualizarProntuario(Prontuario prontuario) async {
+  final ParseObject prontuarioParse = ParseObject('ficha')..objectId = prontuario.id;
+  prontuarioParse.set('paciente_id', await _getPaciente(prontuario.pacienteId));
+  prontuarioParse.set('funcionario_id', await _getProfissional(prontuario.profissionalId));
+  prontuarioParse.set('conteudo', prontuario.textoProntuario);
+
+  final ParseResponse prontuarioResponse = await prontuarioParse.save();
+
+  if (prontuarioResponse.success) {
+    final ficha = prontuarioResponse.result as ParseObject;
+
+    await _deleteCamposAdicionais(ficha);
+    for (var campo in prontuario.camposAdicionais) {
+      await _saveCampoAdicional(ficha, campo);
+    }
+  } else {
+    print('Erro ao salvar o prontuário: ${prontuarioResponse.error?.message}');
+    throw Exception('Erro ao salvar o prontuário: ${prontuarioResponse.error?.message}');
+  }
+}
+
+Future<void> _deleteCamposAdicionais(ParseObject ficha) async {
+  final QueryBuilder<ParseObject> query = QueryBuilder<ParseObject>(ParseObject('campo_adicional'))
+    ..whereEqualTo('id_ficha', ficha);
+
+  final ParseResponse response = await query.query();
+
+  if (response.success && response.results != null) {
+    for (var campo in response.results as List<ParseObject>) {
+      await campo.delete();
+    }
+  }
+}
+
+
+
 }

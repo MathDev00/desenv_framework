@@ -333,27 +333,7 @@ class CustomTable extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Column(
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            // Ação de edição
-                          },
-                          icon: const Icon(Icons.edit),
-                          tooltip: 'Editar',
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            // Ação de deleção
-                          },
-                          icon: const Icon(Icons.delete),
-                          tooltip: 'Deletar',
-                        ),
-                      ],
-                    ),
-                  ),
+                 
                 ],
               ),
             ),

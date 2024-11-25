@@ -31,7 +31,7 @@ class _ProntuarioPacientePageState extends State<ProntuarioPacientePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(title: "Registros de Pacientes"), // AppBar customizado
+      appBar: const CustomAppBar(title: "Registros de Prontuários - Pacientes"), // AppBar customizado
       body: _pacientes.isEmpty
           ? const Center(child: CircularProgressIndicator()) // Indicador de carregamento
           : ListView.builder(

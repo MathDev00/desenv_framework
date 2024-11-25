@@ -57,9 +57,14 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
   }
 
   Future<void> _loadOcupacoesECidades() async {
+    
     ocupacaoItems = await _controller.fetchOcupacoes();
     cidadeItems = await _controller.fetchCidades();
-    setState(() {});
+    setState(() {
+
+      
+
+    });
   }
 
   Future<void> _saveFuncionario() async {

@@ -8,11 +8,9 @@ import 'package:revitalize_mobile/widgets/custom_pront.dart';
 class ProntuarioDetalhadoPage extends StatefulWidget {
   final Prontuario prontuario;
 
-  // ignore: use_super_parameters
   const ProntuarioDetalhadoPage({Key? key, required this.prontuario}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _ProntuarioDetalhadoPageState createState() => _ProntuarioDetalhadoPageState();
 }
 
@@ -23,82 +21,114 @@ class _ProntuarioDetalhadoPageState extends State<ProntuarioDetalhadoPage> {
   @override
   void initState() {
     super.initState();
-    // Buscar campos adicionais com base no prontuário
+    // Fetch additional fields based on the prontuário
     _camposAdicionais = _controller.fetchCamposAdicionais(widget.prontuario.id);
   }
 
   @override
   Widget build(BuildContext context) {
-
-   // ignore: unused_local_variable
-
-
-
     return Scaffold(
       appBar: CustomAppBar(title: "Detalhes do Prontuário"),
-      body: FutureBuilder<List<CampoAdicional>>(
-        future: _camposAdicionais,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.blue.shade100, Colors.white],
+          ),
+        ),
+        child: FutureBuilder<List<CampoAdicional>>(
+          future: _camposAdicionais,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (snapshot.hasError) {
-            return Center(child: Text('Erro: ${snapshot.error}'));
-          }
+            if (snapshot.hasError) {
+              return Center(child: Text('Erro: ${snapshot.error}'));
+            }
 
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Nenhum campo adicional encontrado.'));
-          }
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text('Nenhum campo adicional encontrado.'));
+            }
 
-          List<CampoAdicional> camposAdicionais = snapshot.data!;
-          String createdAtString = widget.prontuario.toString();
+            List<CampoAdicional> camposAdicionais = snapshot.data!;
 
-
-          return SingleChildScrollView(
-
-
-            child: Column(
-              children: [
-                CustomPront(
-                  nomeCampo: [
-                    'Id',
-                    'Paciente',
-                    'Profissional',
-                    'Data',
-                    'Conteúdo',
-                  ],
-                  dados: [
-                    widget.prontuario.id,
-                    widget.prontuario.pacienteNome,
-                    widget.prontuario.profissionalNome,
-                    widget.prontuario.createdAt.toString(),
-                    widget.prontuario.textoProntuario,
-                  ],
-                ),
-                // Exibindo campos adicionais
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Campos Adicionais:',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      ...camposAdicionais.map((campo) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text('Campo: ${campo.valor}'),
-                        );
-                      }).toList(),
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  // CustomPront is used to display the primary prontuário details
+                  CustomPront(
+                    nomeCampo: [
+                      'Id',
+                      'Paciente',
+                      'Profissional',
+                      'Data',
+                      'Conteúdo',
+                    ],
+                    dados: [
+                      widget.prontuario.id,
+                      widget.prontuario.pacienteNome,
+                      widget.prontuario.profissionalNome,
+                      widget.prontuario.createdAt.toString(),
+                      widget.prontuario.textoProntuario,
                     ],
                   ),
-                ),
-              ],
-            ),
-          );
-        },
+                  // Campos adicionais section with improved layout
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Campos Adicionais:',
+                          style: TextStyle(
+                            fontSize: 20, 
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueAccent,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // Improved layout for campos adicionais with cards
+                        ...camposAdicionais.map((campo) {
+                          return Card(
+                            elevation: 5,
+                            margin: const EdgeInsets.symmetric(vertical: 8.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.label,
+                                    color: Colors.blueAccent,
+                                    size: 28,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      campo.valor,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

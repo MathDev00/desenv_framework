@@ -33,7 +33,6 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
   void initState() {
     super.initState();
 
-    // Inicializa os controladores
     nomeController = TextEditingController();
     cpfController = TextEditingController();
     emailController = TextEditingController();
@@ -53,6 +52,7 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
       genero = funcionario.genero ?? '';
       cidadeId = funcionario.cidade ?? '';
     }
+
     _loadOcupacoesECidades();
   }
 
@@ -60,7 +60,24 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
     try {
       ocupacaoItems = await _controller.fetchOcupacoes();
       cidadeItems = await _controller.fetchCidades();
-      setState(() {});
+
+      setState(() {
+        if (ocupacaoItems.isNotEmpty && ocupacaoId.isNotEmpty) {
+          final ocupacao = ocupacaoItems.firstWhere(
+            (e) => e.id == ocupacaoId,
+            orElse: () => ocupacaoItems.first, 
+          );
+          ocupacaoId = ocupacao.id;
+        }
+
+        if (cidadeItems.isNotEmpty && cidadeId.isNotEmpty) {
+          final cidade = cidadeItems.firstWhere(
+            (e) => e.id == cidadeId,
+            orElse: () => cidadeItems.first, 
+          );
+          cidadeId = cidade.id;
+        }
+      });
     } catch (e) {
       print("Erro ao carregar ocupações e cidades: $e");
     }
@@ -70,13 +87,12 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(title: "Editar Funcionário"),
-
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-               Center(child: Icon(Icons.person, size: 60)),
+              Center(child: Icon(Icons.person, size: 60)),
               SizedBox(height: 20),
 
               buildTextField('Nome', nomeController),
@@ -88,25 +104,39 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
                 'Data de Nascimento',
                 dataNascimentoController,
                 readOnly: true,
-              ),
-              const SizedBox(height: 16.0),
-              buildDropdownField<Ocupacao>(
-                'Ocupação',
-                ocupacaoItems.isNotEmpty
-                    ? ocupacaoItems.firstWhere(
-                        (e) => e.id == ocupacaoId,
-                        orElse: () => ocupacaoItems.first,
-                      )
-                    : null, 
-                ocupacaoItems,
-                (value) {
-                  setState(() {
-                    ocupacaoId = value?.id ?? ''; 
-                  });
+                onTap: () async {
+                  final DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(1900), 
+                    lastDate: DateTime.now(), 
+                  );
+
+                  if (pickedDate != null) {
+                    setState(() {
+                      dataNascimentoController.text =
+                          "${pickedDate.day.toString().padLeft(2, '0')}/${pickedDate.month.toString().padLeft(2, '0')}/${pickedDate.year}";
+                    });
+                  }
                 },
-                (e) => e.nome,
               ),
               const SizedBox(height: 16.0),
+
+              ocupacaoItems.isEmpty
+                  ? CircularProgressIndicator() 
+                  : buildDropdownField<Ocupacao>(
+                      'Ocupação',
+                      ocupacaoId,
+                      ocupacaoItems,
+                      (value) {
+                        setState(() {
+                          ocupacaoId = value?.id ?? ''; 
+                        });
+                      },
+                      (e) => e.nome, 
+                    ),
+              const SizedBox(height: 16.0),
+
               buildDropdownField<String>(
                 'Gênero',
                 genero,
@@ -116,26 +146,25 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
                     genero = value!;
                   });
                 },
-                (value) => value,
+                (value) => value, 
               ),
               const SizedBox(height: 16.0),
-              buildDropdownField<Cidade>(
-                'Cidade',
-                cidadeItems.isNotEmpty
-                    ? cidadeItems.firstWhere(
-                        (e) => e.id == cidadeId,
-                        orElse: () => cidadeItems.first,
-                      )
-                    : null, 
-                cidadeItems,
-                (value) {
-                  setState(() {
-                    cidadeId = value?.id ?? ''; 
-                  });
-                },
-                (e) => e.nome,
-              ),
+
+              cidadeItems.isEmpty
+                  ? CircularProgressIndicator() 
+                  : buildDropdownField<Cidade>(
+                      'Cidade',
+                      cidadeId,
+                      cidadeItems,
+                      (value) {
+                        setState(() {
+                          cidadeId = value?.id ?? ''; 
+                        });
+                      },
+                      (e) => e.nome, 
+                    ),
               const SizedBox(height: 16.0),
+
               ElevatedButton(
                 onPressed: () {
                   final funcionario = Funcionario(
@@ -148,11 +177,11 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
                     endereco: enderecoController.text,
                     cidade: cidadeId,
                     cep: cepController.text,
-                    senha: '',
+                    senha: widget.funcionario?.senha ?? '', 
                     dataNascimento: dataNascimentoController.text,
                   );
 
-                  _controller.saveFuncionario(funcionario);
+                  _controller.updateFuncionario(funcionario);
                 },
                 child: const Text('Salvar Alterações'),
               ),
@@ -163,12 +192,14 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
     );
   }
 
-  Widget buildTextField(String label, TextEditingController controller, {bool readOnly = false}) {
+  Widget buildTextField(String label, TextEditingController controller,
+      {bool readOnly = false, VoidCallback? onTap}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextField(
         controller: controller,
         readOnly: readOnly,
+        onTap: onTap, // Ação ao tocar no campo
         decoration: InputDecoration(
           labelText: label,
           border: OutlineInputBorder(),
@@ -179,7 +210,7 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
 
   Widget buildDropdownField<T>(
     String label,
-    T? value,
+    String selectedValue,
     List<T> items,
     Function(T?) onChanged,
     String Function(T) getItemLabel,
@@ -187,7 +218,12 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: DropdownButtonFormField<T>(
-        value: value,
+        value: items.isNotEmpty
+            ? items.firstWhere(
+                (item) => getItemLabel(item) == selectedValue,
+                orElse: () => items.first,
+              )
+            : null,
         items: items.map((T item) {
           return DropdownMenuItem<T>(
             value: item,
@@ -195,9 +231,7 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
           );
         }).toList(),
         onChanged: (newValue) {
-          setState(() {
-            onChanged(newValue);
-          });
+          onChanged(newValue);
         },
         decoration: InputDecoration(
           labelText: label,

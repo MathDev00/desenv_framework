@@ -3,7 +3,6 @@ import 'package:revitalize_mobile/models/paciente.dart';
 import 'package:revitalize_mobile/models/cidade.dart';
 
 class PacienteController {
-
   Future<List<Cidade>> fetchCidades() async {
     List<Cidade> cidadeItems = [];
     QueryBuilder<ParseObject> queryCidade = QueryBuilder<ParseObject>(ParseObject('cidade'));
@@ -33,10 +32,16 @@ class PacienteController {
       ..set('cep', paciente.cep)
       ..set('data_nascimento', paciente.dataNascimento);
 
+    if (paciente.id.isNotEmpty) {
+      pacienteObject.objectId = paciente.id;
+    }
+
     final response = await pacienteObject.save();
 
-    if (!response.success) {
-      print('Erro ao salvar paciente: ${response.error?.message}');
+    if (response.success) {
+      print('Paciente salvo ou atualizado com sucesso!');
+    } else {
+      print('Erro ao salvar ou atualizar paciente: ${response.error?.message}');
     }
   }
 
@@ -48,8 +53,6 @@ class PacienteController {
 
     if (apiResponse.success && apiResponse.results != null) {
       for (var item in apiResponse.results as List<ParseObject>) {
-       //debug do código ->  print('Item do paciente: ${item.toString()}');
-
         String cidadeId = item.get<ParseObject>('cidade_id')?.objectId ?? '';
 
         String cidadeNome = '';
