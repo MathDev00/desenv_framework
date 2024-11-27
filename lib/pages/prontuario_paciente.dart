@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:revitalize_mobile/controllers/prontuario.dart';
 import 'package:revitalize_mobile/models/paciente.dart';
-import 'package:revitalize_mobile/pages/form_prontuario.dart';
+import 'package:revitalize_mobile/forms/form_prontuario.dart';
 import 'package:revitalize_mobile/pages/prontuario_by.dart';
 import 'package:revitalize_mobile/widgets/app_bar.dart'; // AppBar customizado
 
@@ -84,6 +84,7 @@ class _ProntuarioPacientePageState extends State<ProntuarioPacientePage> {
             MaterialPageRoute(builder: (context) => const FormProntuarioPage()),
           );
         },
+        // ignore: sort_child_properties_last
         child: const Icon(Icons.add),
         tooltip: 'Adicionar Prontuário',
       )

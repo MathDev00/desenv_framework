@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:revitalize_mobile/pages/reset_page.dart';
 import 'package:revitalize_mobile/pages/tela_inicial.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
@@ -159,7 +160,8 @@ class __LoginPageState extends State<LoginPage> {
                 MouseRegion(
                   onEnter: (_) {
                     setState(() {
-                      _buttonScale = 1.05; // Aumenta levemente ao passar o mouse
+                      _buttonScale =
+                          1.05; // Aumenta levemente ao passar o mouse
                     });
                   },
                   onExit: (_) {
@@ -172,12 +174,14 @@ class __LoginPageState extends State<LoginPage> {
                     onTapDown: (_) {
                       setState(() {
                         _buttonScale = 0.95; // Escala reduzida ao clicar
-                        _buttonColor = const Color(0xFF006699); // Muda para azul ao clicar
+                        _buttonColor =
+                            const Color(0xFF006699); // Muda para azul ao clicar
                       });
                     },
                     onTapUp: (_) {
                       setState(() {
-                        _buttonScale = 1.0; // Retorna à escala normal após o clique
+                        _buttonScale =
+                            1.0; // Retorna à escala normal após o clique
                         _buttonColor = Colors.white; // Retorna à cor original
                       });
                       login(email, password);
@@ -199,7 +203,8 @@ class __LoginPageState extends State<LoginPage> {
                             fontSize: 16,
                             color: _buttonColor == Colors.white
                                 ? const Color(0xFF003366)
-                                : Colors.white, // Muda a cor do texto conforme o fundo
+                                : Colors
+                                    .white, // Muda a cor do texto conforme o fundo
                           ),
                         ),
                       ),
@@ -210,7 +215,11 @@ class __LoginPageState extends State<LoginPage> {
                 // Esqueceu sua senha?
                 TextButton(
                   onPressed: () {
-                    // Lógica para recuperação de senha
+                    Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => const  ResetPasswordPage()),
+      );
+
+                   
                   },
                   child: const Text(
                     'Esqueceu sua senha?',

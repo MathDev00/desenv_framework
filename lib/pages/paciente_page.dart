@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:revitalize_mobile/pages/form_edit_paciente.dart';
-import 'package:revitalize_mobile/pages/form_paciente.dart';
+import 'package:revitalize_mobile/forms/form_edit_paciente.dart';
+import 'package:revitalize_mobile/forms/form_paciente.dart';
 import 'package:revitalize_mobile/widgets/app_bar.dart';
 import 'package:revitalize_mobile/widgets/custom_table.dart';
 import 'package:revitalize_mobile/controllers/paciente.dart'; 
@@ -17,21 +17,19 @@ class PacientePage extends StatefulWidget {
 }
 
 class _PacientePageState extends State<PacientePage> {
-  List<Paciente> pacientes = [];
+  late Future<List<Paciente>> _pacientesFuture;
 
   final PacienteController _pacienteController = PacienteController();
 
-  void _fetchPacientes() async {
-    List<Paciente> pacientesFromServer = await _pacienteController.getPacientes();
-    setState(() {
-      pacientes = pacientesFromServer; 
-    });
+  Future<List<Paciente>> _fetchPacientes() async {
+    // Aqui o método de fetch será chamado de maneira assíncrona
+    return await _pacienteController.getPacientes();
   }
 
   void _deletePaciente(String id, int index) async {
     await _pacienteController.deletePaciente(id);
     setState(() {
-      pacientes.removeAt(index); 
+      _pacientesFuture = _fetchPacientes(); 
     });
   }
 
@@ -43,7 +41,7 @@ class _PacientePageState extends State<PacientePage> {
     ).then((newPaciente) {
       if (newPaciente != null) {
         setState(() {
-          pacientes.add(newPaciente); 
+          _pacientesFuture = _fetchPacientes(); 
         });
       }
     });
@@ -57,11 +55,7 @@ class _PacientePageState extends State<PacientePage> {
     ).then((updatedPaciente) {
       if (updatedPaciente != null) {
         setState(() {
-          // Find the index of the edited paciente and update it
-          int index = pacientes.indexWhere((p) => p.id == updatedPaciente.id);
-          if (index != -1) {
-            pacientes[index] = updatedPaciente;
-          }
+          _pacientesFuture = _fetchPacientes(); 
         });
       }
     });
@@ -70,7 +64,7 @@ class _PacientePageState extends State<PacientePage> {
   @override
   void initState() {
     super.initState();
-    _fetchPacientes(); 
+    _pacientesFuture = _fetchPacientes(); 
   }
 
   @override
@@ -87,75 +81,94 @@ class _PacientePageState extends State<PacientePage> {
 
     return Scaffold(
       appBar: CustomAppBar(title: "Pacientes"),
-      body: SingleChildScrollView(
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            if (constraints.maxWidth >= 600) {
-              return Column(
-                children: [
-                  IconButton(
-                    onPressed: _addPaciente,
-                    icon: const Icon(Icons.add),
-                    tooltip: 'Adicionar',
-                  ),
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
-                    children: List.generate(pacientes.length, (index) {
-                      return CustomTextWidget(
-                        titulo: nomeCampo,
-                        dados: [
-                          pacientes[index].id,
-                          pacientes[index].nome,
-                          pacientes[index].dataNascimento,
-                          pacientes[index].email,
-                          pacientes[index].endereco,
-                          pacientes[index].cidade,
-                          pacientes[index].cep,
-                        ],
-                        onDelete: () => _deletePaciente(pacientes[index].id, index),
-                        onEdit: () => _editPaciente(pacientes[index]), 
-                      );
-                    }),
-                  ),
-                ],
-              );
-            } else {
-              return Column(
-                children: [
-                  IconButton(
-                    onPressed: _addPaciente,
-                    icon: const Icon(Icons.add),
-                    tooltip: 'Adicionar',
-                  ),
-                  SizedBox(height: 8),
-                  ...List.generate(pacientes.length, (index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: CustomTable(
-                        quantidadeCampo: '8',
-                        nomeCampo: nomeCampo,
-                        dados: [
-                          pacientes[index].id,
-                          pacientes[index].nome,
-                          pacientes[index].dataNascimento,
-                          pacientes[index].email,
-                          pacientes[index].endereco,
-                          pacientes[index].cidade,
-                          pacientes[index].cep,
-                        ],
-                      ),
+      body: FutureBuilder<List<Paciente>>(
+        future: _pacientesFuture, // Passa o futuro de pacientes aqui
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Exibe indicador de carregamento enquanto espera
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            // Exibe erro caso a requisição falhe
+            return Center(child: Text('Erro ao carregar pacientes: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            // Caso não tenha dados ou a lista esteja vazia
+            return Center(child: Text('Nenhum paciente encontrado.'));
+          } else {
+            // Se os dados forem carregados corretamente, exibe a lista
+            List<Paciente> pacientes = snapshot.data!;
+            return SingleChildScrollView(
+              child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  if (constraints.maxWidth >= 600) {
+                    return Column(
+                      children: [
+                        IconButton(
+                          onPressed: _addPaciente,
+                          icon: const Icon(Icons.add),
+                          tooltip: 'Adicionar',
+                        ),
+                        Wrap(
+                          spacing: 16,
+                          runSpacing: 16,
+                          children: List.generate(pacientes.length, (index) {
+                            return CustomTextWidget(
+                              titulo: nomeCampo,
+                              dados: [
+                                pacientes[index].id,
+                                pacientes[index].nome,
+                                pacientes[index].dataNascimento,
+                                pacientes[index].email,
+                                pacientes[index].endereco,
+                                pacientes[index].cidade,
+                                pacientes[index].cep,
+                              ],
+                              onDelete: () => _deletePaciente(pacientes[index].id, index),
+                              onEdit: () => _editPaciente(pacientes[index]), 
+                            );
+                          }),
+                        ),
+                      ],
                     );
-                  }),
-                ],
-              );
-            }
-          },
-        ),
+                  } else {
+                    return Column(
+                      children: [
+                        IconButton(
+                          onPressed: _addPaciente,
+                          icon: const Icon(Icons.add),
+                          tooltip: 'Adicionar',
+                        ),
+                        SizedBox(height: 8),
+                        ...List.generate(pacientes.length, (index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: CustomTable(
+                              quantidadeCampo: '8',
+                              nomeCampo: nomeCampo,
+                              dados: [
+                                pacientes[index].id,
+                                pacientes[index].nome,
+                                pacientes[index].dataNascimento,
+                                pacientes[index].email,
+                                pacientes[index].endereco,
+                                pacientes[index].cidade,
+                                pacientes[index].cep,
+                              ],
+                            ),
+                          );
+                        }),
+                      ],
+                    );
+                  }
+                },
+              ),
+            );
+          }
+        },
       ),
     );
   }
 }
+
 
 class CustomTextWidget extends StatelessWidget {
   final List<String> titulo;

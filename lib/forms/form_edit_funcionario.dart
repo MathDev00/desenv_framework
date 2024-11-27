@@ -11,7 +11,8 @@ class FormEditFuncionarioPage extends StatefulWidget {
   const FormEditFuncionarioPage({Key? key, this.funcionario}) : super(key: key);
 
   @override
-  _FormEditFuncionarioPageState createState() => _FormEditFuncionarioPageState();
+  _FormEditFuncionarioPageState createState() =>
+      _FormEditFuncionarioPageState();
 }
 
 class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
@@ -65,7 +66,7 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
         if (ocupacaoItems.isNotEmpty && ocupacaoId.isNotEmpty) {
           final ocupacao = ocupacaoItems.firstWhere(
             (e) => e.id == ocupacaoId,
-            orElse: () => ocupacaoItems.first, 
+            orElse: () => ocupacaoItems.first,
           );
           ocupacaoId = ocupacao.id;
         }
@@ -73,7 +74,7 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
         if (cidadeItems.isNotEmpty && cidadeId.isNotEmpty) {
           final cidade = cidadeItems.firstWhere(
             (e) => e.id == cidadeId,
-            orElse: () => cidadeItems.first, 
+            orElse: () => cidadeItems.first,
           );
           cidadeId = cidade.id;
         }
@@ -94,7 +95,6 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
             children: [
               Center(child: Icon(Icons.person, size: 60)),
               SizedBox(height: 20),
-
               buildTextField('Nome', nomeController),
               buildTextField('CPF', cpfController),
               buildTextField('Email', emailController),
@@ -108,8 +108,8 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
                   final DateTime? pickedDate = await showDatePicker(
                     context: context,
                     initialDate: DateTime.now(),
-                    firstDate: DateTime(1900), 
-                    lastDate: DateTime.now(), 
+                    firstDate: DateTime(1900),
+                    lastDate: DateTime.now(),
                   );
 
                   if (pickedDate != null) {
@@ -121,22 +121,20 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
                 },
               ),
               const SizedBox(height: 16.0),
-
               ocupacaoItems.isEmpty
-                  ? CircularProgressIndicator() 
+                  ? CircularProgressIndicator()
                   : buildDropdownField<Ocupacao>(
                       'Ocupação',
                       ocupacaoId,
                       ocupacaoItems,
                       (value) {
                         setState(() {
-                          ocupacaoId = value?.id ?? ''; 
+                          ocupacaoId = value?.id ?? '';
                         });
                       },
-                      (e) => e.nome, 
+                      (e) => e.nome,
                     ),
               const SizedBox(height: 16.0),
-
               buildDropdownField<String>(
                 'Gênero',
                 genero,
@@ -146,25 +144,23 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
                     genero = value!;
                   });
                 },
-                (value) => value, 
+                (value) => value,
               ),
               const SizedBox(height: 16.0),
-
               cidadeItems.isEmpty
-                  ? CircularProgressIndicator() 
+                  ? CircularProgressIndicator()
                   : buildDropdownField<Cidade>(
                       'Cidade',
                       cidadeId,
                       cidadeItems,
                       (value) {
                         setState(() {
-                          cidadeId = value?.id ?? ''; 
+                          cidadeId = value?.id ?? '';
                         });
                       },
-                      (e) => e.nome, 
+                      (e) => e.nome,
                     ),
               const SizedBox(height: 16.0),
-
               ElevatedButton(
                 onPressed: () {
                   final funcionario = Funcionario(
@@ -177,7 +173,7 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
                     endereco: enderecoController.text,
                     cidade: cidadeId,
                     cep: cepController.text,
-                    senha: widget.funcionario?.senha ?? '', 
+                    senha: widget.funcionario?.senha ?? '',
                     dataNascimento: dataNascimentoController.text,
                   );
 
@@ -199,7 +195,7 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
       child: TextField(
         controller: controller,
         readOnly: readOnly,
-        onTap: onTap, // Ação ao tocar no campo
+        onTap: onTap,
         decoration: InputDecoration(
           labelText: label,
           border: OutlineInputBorder(),
@@ -220,8 +216,10 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
       child: DropdownButtonFormField<T>(
         value: items.isNotEmpty
             ? items.firstWhere(
-                (item) => getItemLabel(item) == selectedValue,
-                orElse: () => items.first,
+                (item) =>
+                    (item is Ocupacao && item.id == selectedValue) ||
+                    (item is Cidade && item.id == selectedValue),
+                orElse: () => items.first, // Corrigido aqui
               )
             : null,
         items: items.map((T item) {

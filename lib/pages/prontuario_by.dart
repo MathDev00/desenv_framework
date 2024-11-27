@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:revitalize_mobile/controllers/prontuario.dart';
 import 'package:revitalize_mobile/models/prontuario.dart';
-import 'package:revitalize_mobile/pages/form_edit_prontuario.dart';
+import 'package:revitalize_mobile/forms/form_edit_prontuario.dart';
 import 'package:revitalize_mobile/pages/prontuario_detalhado.dart'; // Página de detalhes
 //import 'package:revitalize_mobile/pages/editar_prontuario.dart'; // Nova página para edição
 import 'package:revitalize_mobile/testes/home_page.dart';

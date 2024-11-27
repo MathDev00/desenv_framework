@@ -1,5 +1,3 @@
-// views/form_funcionario_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:revitalize_mobile/controllers/funcionario.dart';
 import 'package:revitalize_mobile/models/funcionario.dart';
@@ -57,14 +55,9 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
   }
 
   Future<void> _loadOcupacoesECidades() async {
-    
     ocupacaoItems = await _controller.fetchOcupacoes();
     cidadeItems = await _controller.fetchCidades();
-    setState(() {
-
-      
-
-    });
+    setState(() {});
   }
 
   Future<void> _saveFuncionario() async {
@@ -82,7 +75,7 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
       dataNascimento: dataNascimento,
     );
 
-      await _controller.saveFuncionario(funcionario); 
+    await _controller.saveFuncionario(funcionario); 
   }
 
   Future<void> _selectDate() async {
@@ -120,12 +113,14 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
         labelText: label,
         border: OutlineInputBorder(),
       ),
-      items: items.map((T item) {
-        return DropdownMenuItem<T>(
-          value: item,
-          child: Text(getItemLabel(item)),
-        );
-      }).toList(),
+      items: items.isNotEmpty
+          ? items.map((T item) {
+              return DropdownMenuItem<T>(
+                value: item,
+                child: Text(getItemLabel(item)),
+              );
+            }).toList()
+          : [], // Se a lista estiver vazia, não exibe opções
       onChanged: onChanged,
     );
   }
@@ -153,31 +148,35 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
                   filled: true,
                   prefixIcon: Icon(Icons.calendar_today),
                   enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue)),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
                 ),
                 readOnly: true,
                 onTap: _selectDate,
               ),
               SizedBox(height: 10),
 
-              // Dropdown para ocupação
               buildDropdownField<Ocupacao>(
-                  'Ocupação',
-                  ocupacaoItems.firstWhere(
-                    (item) => item.id == ocupacaoId,
-                    orElse: () => ocupacaoItems.isNotEmpty ? ocupacaoItems.first : ocupacaoItems[0]
-                  ),
-                  ocupacaoItems,
-                  (newValue) => setState(() => ocupacaoId = newValue?.id),
-                  (Ocupacao ocupacao) => ocupacao.nome),
+                'Ocupação',
+                ocupacaoItems.isNotEmpty && ocupacaoId != null
+                    ? ocupacaoItems.firstWhere(
+                        (item) => item.id == ocupacaoId,
+                        orElse: () => ocupacaoItems[0], 
+                      )
+                    : null,
+                ocupacaoItems,
+                (newValue) => setState(() => ocupacaoId = newValue?.id),
+                (Ocupacao ocupacao) => ocupacao.nome,
+              ),
               SizedBox(height: 10),
 
               buildDropdownField<String>(
-                  'Gênero',
-                  genero,
-                  generoItems,
-                  (newValue) => setState(() => genero = newValue),
-                  (String genero) => genero),
+                'Gênero',
+                genero,
+                generoItems,
+                (newValue) => setState(() => genero = newValue),
+                (String genero) => genero,
+              ),
               SizedBox(height: 10),
 
               buildTextField('CPF', (text) => cpf = text),
@@ -189,21 +188,24 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
               buildTextField('Endereço', (text) => endereco = text),
               SizedBox(height: 10),
 
-              // Dropdown para cidade
               buildDropdownField<Cidade>(
-                  'Cidade',
-                  cidadeItems.firstWhere(
-                    (item) => item.id == cidadeId,
-                    orElse: () => cidadeItems.isNotEmpty ? cidadeItems.first : cidadeItems[0]
-                  ),
-                  cidadeItems,
-                  (newValue) => setState(() => cidadeId = newValue?.id),
-                  (Cidade cidade) => cidade.nome),
+                'Cidade',
+                cidadeItems.isNotEmpty && cidadeId != null
+                    ? cidadeItems.firstWhere(
+                        (item) => item.id == cidadeId,
+                        orElse: () => cidadeItems[0], 
+                      )
+                    : null,
+                cidadeItems,
+                (newValue) => setState(() => cidadeId = newValue?.id),
+                (Cidade cidade) => cidade.nome,
+              ),
               SizedBox(height: 10),
 
               buildTextField('CEP', (text) => cep = text),
               SizedBox(height: 10),
 
+              // Campo de Senha
               buildTextField('Senha', (text) => senha = text, obscureText: true),
               SizedBox(height: 20),
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:revitalize_mobile/pages/form_edit_funcionario.dart';
-import 'package:revitalize_mobile/pages/form_funcionario.dart';
+import 'package:revitalize_mobile/forms/form_edit_funcionario.dart';
+import 'package:revitalize_mobile/forms/form_funcionario.dart';
 import 'package:revitalize_mobile/testes/home_page.dart';
 import 'package:revitalize_mobile/widgets/custom_table.dart';
 import 'package:revitalize_mobile/widgets/app_bar.dart';
@@ -105,7 +105,7 @@ class _FuncionarioPageState extends State<FuncionarioPageState> {
                       ),
                     ),
                     SizedBox(
-                        height: 8), 
+                        height: 8),
                     ..._funcionarios.map((funcionario) => Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: CustomTextWidget(

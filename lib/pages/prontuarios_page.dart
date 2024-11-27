@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:revitalize_mobile/controllers/prontuario.dart';
 import 'package:revitalize_mobile/models/prontuario.dart';
-import 'package:revitalize_mobile/pages/form_prontuario.dart';
+import 'package:revitalize_mobile/forms/form_prontuario.dart';
 import 'package:revitalize_mobile/widgets/app_bar.dart';
 
 class ProntuariosPage extends StatefulWidget {
