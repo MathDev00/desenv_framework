@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:revitalize_mobile/controllers/paciente.dart';
 import 'package:revitalize_mobile/models/paciente.dart';
 import 'package:revitalize_mobile/models/cidade.dart';
+import 'package:revitalize_mobile/pages/paciente_page.dart';
 import 'package:revitalize_mobile/widgets/app_bar.dart';
 
 class FormPacientePage extends StatefulWidget {
@@ -60,13 +61,14 @@ class _FormPacientePageState extends State<FormPacientePage> {
       cidade: cidadeId ?? '',
       cep: cep,
       dataNascimento: dataNascimento,
-
     );
 
-    if (paciente.id.isEmpty) {
-      await _controller.savePaciente(paciente); // Cadastro
-    } else {
-    }
+      await _controller.savePaciente(paciente); 
+       Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => PacientePage()),
+    );
+      
+   
   }
 
   Future<void> _selectDate() async {
@@ -156,10 +158,12 @@ class _FormPacientePageState extends State<FormPacientePage> {
               // Dropdown para cidade
               buildDropdownField<Cidade>(
                   'Cidade',
-                  cidadeItems.firstWhere(
-                    (item) => item.id == cidadeId,
-                    orElse: () => cidadeItems.isNotEmpty ? cidadeItems.first : cidadeItems[0]
-                  ),
+                  cidadeItems.isNotEmpty && cidadeId != null
+                      ? cidadeItems.firstWhere(
+                          (item) => item.id == cidadeId,
+                          orElse: () => cidadeItems[0], // Fallback para primeiro item
+                        )
+                      : null, // Se cidadeItems estiver vazio, não seleciona nenhum
                   cidadeItems,
                   (newValue) => setState(() => cidadeId = newValue?.id),
                   (Cidade cidade) => cidade.nome),

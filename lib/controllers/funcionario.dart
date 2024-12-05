@@ -3,6 +3,7 @@ import 'package:revitalize_mobile/models/funcionario.dart';
 import 'package:revitalize_mobile/models/ocupacao.dart';
 import 'package:revitalize_mobile/models/cidade.dart';
 
+
 class FuncionarioController {
   Future<List<Ocupacao>> fetchOcupacoes() async {
     List<Ocupacao> ocupacaoItems = [];
@@ -153,6 +154,7 @@ Future<void> updateFuncionario(Funcionario funcionario) async {
     final response = await funcionarioObject.save();
     if (response.success) {
       print('Funcionario atualizado com sucesso!');
+     
     } else {
       print('Erro ao atualizar funcionário');
     }

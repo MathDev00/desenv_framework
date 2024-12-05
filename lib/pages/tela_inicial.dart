@@ -3,121 +3,28 @@ import 'package:revitalize_mobile/pages/login_page.dart';
 import 'package:revitalize_mobile/pages/funcionario_page.dart';
 import 'package:revitalize_mobile/pages/paciente_page.dart';
 import 'package:revitalize_mobile/pages/prontuario_paciente.dart';
-import 'package:revitalize_mobile/pages/prontuarios_page.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
-
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: MyHomePage(),
-    );
-  }
-
+@override
+Widget build(BuildContext context) {
+  return const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: MyHomePage(),
+  );
+}
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
- void showSuccess(String message) {
-     showDialog(
-       context: context,
-       builder: (BuildContext context) {
-         return AlertDialog(
-           title: const Text("Success!"),
-           content: Text(message),
-           actions: <Widget>[
-             new TextButton(
-               child: const Text("OK"),
-               onPressed: () {
-                 Navigator.of(context).pop();
-               },
-             ),
-           ],
-         );
-       },
-     );
-   }
-
-void showError(String errorMessage) {
-     showDialog(
-       context: context,
-       builder: (BuildContext context) {
-         return AlertDialog(
-           title: const Text("Error!"),
-           content: Text(errorMessage),
-           actions: <Widget>[
-             new TextButton(
-               child: const Text("OK"),
-               onPressed: () {
-                 Navigator.of(context).pop();
-               },
-             ),
-           ],
-         );
-       },
-     );
-   }
-
-
-  void _onFuncionarioPressed () {
-
-  Navigator.of(context).push(
-    MaterialPageRoute(builder: (context) => const FuncionarioPageState()));
-
-  }
-
-
-  void _onPacientePressed () {
-
-  Navigator.of(context).push(
-    MaterialPageRoute(builder: (context) => const PacientePage()));
-
-  }
-
-  void _onProntuariosPressed () {
-
-  Navigator.of(context).push(
-    MaterialPageRoute(builder: (context) => const ProntuariosPage()));
-
-  }
-
-   void _onProntuariosPacientePressed () {
-
-  Navigator.of(context).push(
-    MaterialPageRoute(builder: (context) =>  ProntuarioPacientePage()));
-
-  }
-
-
-       void doUserLogout() async {
-       final user = await ParseUser.currentUser() as ParseUser;
-       var response = await user.logout();
-   
-       if (response.success) {
-         showSuccess("User was successfully logout!");
-         setState(() {
-           var isLoggedIn = false;
-      Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => const LoginPage()));
-         });
-      } else {
-        showError(response.error!.message);
-      }
-    }
-
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text(
           "Revitalize",
@@ -127,92 +34,199 @@ void showError(String errorMessage) {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: const Color.fromARGB(255, 28, 5, 82),
+        backgroundColor: const Color(0xFF0E37BB),
         elevation: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          GestureDetector(
-            onTap: _onPacientePressed, // Chama a função ao pressionar
-            child: Container(
-              height: 100,
-              width: 300,
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(150, 173, 216, 230),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              margin: const EdgeInsets.only(bottom: 10),
-              child: const Text(
-                "Paciente",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Cabeçalho do sistema
+              Container(
+                width: MediaQuery.of(context).size.width > 600
+                    ? 600
+                    : MediaQuery.of(context).size.width * 0.9,
+                color: Colors.blue[50],
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                child: const Text(
+                  "Bem-vindo ao Revitalize!\nGerencie pacientes, funcionários e prontuários de forma simples.",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF0E37BB),
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
-            ),
+              const SizedBox(height: 16),
+              // Grid de opções
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                children: [
+                  _buildMenuCard(
+                    icon: Icons.person,
+                    title: "Pacientes",
+                    onTap: _onPacientePressed,
+                  ),
+                  _buildMenuCard(
+                    icon: Icons.group,
+                    title: "Funcionários",
+                    onTap: _onFuncionarioPressed,
+                  ),
+                  _buildMenuCard(
+                    icon: Icons.description,
+                    title: "Prontuário do Paciente",
+                    onTap: _onProntuariosPacientePressed,
+                  ),
+                ],
+              ),
+            ],
           ),
-          GestureDetector(
-            onTap: _onFuncionarioPressed,
-            child: Container(
-              height: 100,
-              width: 300,
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(150, 173, 216, 230),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              margin: const EdgeInsets.only(bottom: 10), // Ajusta a margem inferior
-              child: const Text(
-                "Funcionário",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-              GestureDetector(
-            onTap: _onProntuariosPacientePressed,
-            child: Container(
-              height: 100,
-              width: 300,
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(150, 173, 216, 230),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              margin: const EdgeInsets.only(bottom: 10), // Ajusta a margem inferior
-              child: const Text(
-                "Prontuario",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
       bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () {
+        child: Container(
+          color: const Color(0xFF0E37BB),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.logout, color: Colors.white),
+                onPressed: doUserLogout,
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                "Sair",
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-                doUserLogout();
-              
-              },
+  Widget _buildMenuCard({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: const Color(0xFF0E37BB), size: 48),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  // Mensagem de sucesso
+  void showSuccess(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Success!"),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Mensagem de erro
+  void showError(String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Error!"),
+          content: Text(errorMessage),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Funções de navegação
+  void _onFuncionarioPressed() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => const FuncionarioPageState()),
+    );
+  }
+
+  void _onPacientePressed() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => const PacientePage()),
+    );
+  }
+
+  void _onProntuariosPacientePressed() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => ProntuarioPacientePage()),
+    );
+  }
+
+  // Função de logout
+  void doUserLogout() async {
+    final user = await ParseUser.currentUser() as ParseUser;
+    var response = await user.logout();
+
+    if (response.success) {
+      showSuccess("User was successfully logged out!");
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    } else {
+      showError(response.error!.message);
+    }
   }
 }

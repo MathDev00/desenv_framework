@@ -74,7 +74,6 @@ class _ProntuarioDetalhadoPageState extends State<ProntuarioDetalhadoPage> {
                       widget.prontuario.textoProntuario,
                     ],
                   ),
-                  // Campos adicionais section with improved layout
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(

@@ -3,10 +3,12 @@ import 'package:revitalize_mobile/controllers/funcionario.dart';
 import 'package:revitalize_mobile/models/funcionario.dart';
 import 'package:revitalize_mobile/models/ocupacao.dart';
 import 'package:revitalize_mobile/models/cidade.dart';
+import 'package:revitalize_mobile/pages/funcionario_page.dart';
 import 'package:revitalize_mobile/widgets/app_bar.dart';
 
 class FormFuncionarioPage extends StatefulWidget {
-  final Funcionario? funcionario; // Adicionando o campo para receber o funcionario
+  final Funcionario?
+      funcionario; // Adicionando o campo para receber o funcionario
 
   const FormFuncionarioPage({super.key, this.funcionario});
 
@@ -62,7 +64,7 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
 
   Future<void> _saveFuncionario() async {
     final funcionario = Funcionario(
-      id: widget.funcionario?.id ?? '', 
+      id: widget.funcionario?.id ?? '',
       nome: nome,
       ocupacao: ocupacaoId ?? '',
       genero: genero ?? '',
@@ -75,7 +77,9 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
       dataNascimento: dataNascimento,
     );
 
-    await _controller.saveFuncionario(funcionario); 
+    await _controller.saveFuncionario(funcionario);
+  Navigator.of(context).push(
+    MaterialPageRoute(builder: (context) => const FuncionarioPageState()));
   }
 
   Future<void> _selectDate() async {
@@ -94,7 +98,8 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
     }
   }
 
-  Widget buildTextField(String label, Function(String) onChanged, {bool obscureText = false}) {
+  Widget buildTextField(String label, Function(String) onChanged,
+      {bool obscureText = false}) {
     return TextField(
       onChanged: onChanged,
       obscureText: obscureText,
@@ -105,8 +110,8 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
     );
   }
 
-  Widget buildDropdownField<T>(
-      String label, T? value, List<T> items, Function(T?) onChanged, String Function(T) getItemLabel) {
+  Widget buildDropdownField<T>(String label, T? value, List<T> items,
+      Function(T?) onChanged, String Function(T) getItemLabel) {
     return DropdownButtonFormField<T>(
       value: value,
       decoration: InputDecoration(
@@ -161,7 +166,7 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
                 ocupacaoItems.isNotEmpty && ocupacaoId != null
                     ? ocupacaoItems.firstWhere(
                         (item) => item.id == ocupacaoId,
-                        orElse: () => ocupacaoItems[0], 
+                        orElse: () => ocupacaoItems[0],
                       )
                     : null,
                 ocupacaoItems,
@@ -193,7 +198,7 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
                 cidadeItems.isNotEmpty && cidadeId != null
                     ? cidadeItems.firstWhere(
                         (item) => item.id == cidadeId,
-                        orElse: () => cidadeItems[0], 
+                        orElse: () => cidadeItems[0],
                       )
                     : null,
                 cidadeItems,
@@ -206,7 +211,8 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
               SizedBox(height: 10),
 
               // Campo de Senha
-              buildTextField('Senha', (text) => senha = text, obscureText: true),
+              buildTextField('Senha', (text) => senha = text,
+                  obscureText: true),
               SizedBox(height: 20),
 
               Center(

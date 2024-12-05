@@ -46,7 +46,7 @@ class _EditarPacientePageState extends State<EditarPacientePage> {
   Future<void> _loadCidades() async {
     cidadeItems = await _controller.fetchCidades();
     _setCidadeSelecionada();
-    setState(() {}); 
+    setState(() {});
   }
 
   void _setCidadeSelecionada() {
@@ -56,7 +56,7 @@ class _EditarPacientePageState extends State<EditarPacientePage> {
         orElse: () => cidadeItems[0],
       );
     } else {
-      cidadeSelecionada = null; 
+      cidadeSelecionada = null;
     }
   }
 
@@ -67,16 +67,17 @@ class _EditarPacientePageState extends State<EditarPacientePage> {
       cpf: _cpfController.text,
       email: _emailController.text,
       endereco: _enderecoController.text,
-      cidade: cidadeSelecionada?.id ?? '', 
+      cidade: cidadeSelecionada?.id ?? '',
       cep: _cepController.text,
       dataNascimento: dataNascimento,
     );
 
     await _controller.savePaciente(paciente);
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Paciente atualizado com sucesso!')),
     );
-    Navigator.of(context).pop(paciente); 
+    Navigator.of(context).pop(paciente);
   }
 
   @override
@@ -90,7 +91,6 @@ class _EditarPacientePageState extends State<EditarPacientePage> {
             children: [
               Center(child: Icon(Icons.person, size: 60)),
               SizedBox(height: 20),
-
               buildTextField('Nome', _nomeController),
               buildTextField('CPF', _cpfController),
               buildTextField('E-mail', _emailController),
@@ -98,21 +98,20 @@ class _EditarPacientePageState extends State<EditarPacientePage> {
               buildTextField('CEP', _cepController),
               buildDateField('Data de Nascimento', _dateController),
               const SizedBox(height: 16.0),
+              buildDropdownField<Cidade>(
+                'Cidade',
+                cidadeSelecionada,
+                cidadeItems,
+                (value) {
+                  setState(() {
+                    cidadeSelecionada = value;
+                  });
+                                      print(cidadeSelecionada);
 
-             buildDropdownField<Cidade>(
-  'Cidade',
-  cidadeSelecionada,
-  cidadeItems,
-  (value) {
-    setState(() {
-      cidadeSelecionada = value;
-    });
-  },
-  (cidade) => cidade.nome,
-),
-
+                },
+                (cidade) => cidade.nome,
+              ),
               const SizedBox(height: 16.0),
-
               ElevatedButton(
                 onPressed: _savePaciente,
                 child: const Text('Salvar Alterações'),
@@ -124,7 +123,8 @@ class _EditarPacientePageState extends State<EditarPacientePage> {
     );
   }
 
-  Widget buildTextField(String label, TextEditingController controller, {bool readOnly = false}) {
+  Widget buildTextField(String label, TextEditingController controller,
+      {bool readOnly = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextField(
@@ -169,29 +169,28 @@ class _EditarPacientePageState extends State<EditarPacientePage> {
   }
 
   Widget buildDropdownField<T>(
-  String label,
-  T? selectedValue,
-  List<T> items,
-  Function(T?) onChanged,
-  String Function(T) getItemLabel,
-) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 16.0),
-    child: DropdownButtonFormField<T>(
-      value: selectedValue,
-      items: items.map((T item) {
-        return DropdownMenuItem<T>(
-          value: item,
-          child: Text(getItemLabel(item)),
-        );
-      }).toList(),
-      onChanged: onChanged,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(),
+    String label,
+    T? selectedValue,
+    List<T> items,
+    Function(T?) onChanged,
+    String Function(T) getItemLabel,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: DropdownButtonFormField<T>(
+        value: selectedValue,
+        items: items.map((T item) {
+          return DropdownMenuItem<T>(
+            value: item,
+            child: Text(getItemLabel(item)),
+          );
+        }).toList(),
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(),
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 }

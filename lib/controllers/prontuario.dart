@@ -171,7 +171,6 @@ class ProntuarioController {
     return pacienteItems;
   }
 
-  // Fetch Funcionários
   Future<List<Funcionario>> fetchFuncionarios() async {
     List<Funcionario> funcionarioItems = [];
     QueryBuilder<ParseObject> queryFuncionario =

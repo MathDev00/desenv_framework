@@ -3,6 +3,7 @@ import 'package:revitalize_mobile/controllers/funcionario.dart';
 import 'package:revitalize_mobile/models/funcionario.dart';
 import 'package:revitalize_mobile/models/ocupacao.dart';
 import 'package:revitalize_mobile/models/cidade.dart';
+import 'package:revitalize_mobile/pages/funcionario_page.dart';
 import 'package:revitalize_mobile/widgets/app_bar.dart';
 
 class FormEditFuncionarioPage extends StatefulWidget {
@@ -162,7 +163,7 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
                     ),
               const SizedBox(height: 16.0),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   final funcionario = Funcionario(
                     id: widget.funcionario?.id ?? '',
                     nome: nomeController.text,
@@ -177,7 +178,14 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
                     dataNascimento: dataNascimentoController.text,
                   );
 
-                  _controller.updateFuncionario(funcionario);
+                  await _controller.updateFuncionario(funcionario);
+
+                  // Navegar para a página de listagem com atualização
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const FuncionarioPageState()),
+                  );
                 },
                 child: const Text('Salvar Alterações'),
               ),
@@ -219,7 +227,7 @@ class _FormEditFuncionarioPageState extends State<FormEditFuncionarioPage> {
                 (item) =>
                     (item is Ocupacao && item.id == selectedValue) ||
                     (item is Cidade && item.id == selectedValue),
-                orElse: () => items.first, // Corrigido aqui
+                orElse: () => items.first,
               )
             : null,
         items: items.map((T item) {
