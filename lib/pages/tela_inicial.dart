@@ -49,7 +49,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     ? 600
                     : MediaQuery.of(context).size.width * 0.9,
                 color: Colors.blue[50],
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                 child: const Text(
                   "Bem-vindo ao Revitalize!\nGerencie pacientes, funcionários e prontuários de forma simples.",
                   style: TextStyle(
@@ -65,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
               GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
+                crossAxisCount: MediaQuery.of(context).size.width > 600 ? 4 : 2,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -84,6 +85,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     icon: Icons.description,
                     title: "Prontuário do Paciente",
                     onTap: _onProntuariosPacientePressed,
+                  ),
+                  _buildMenuCard(
+                    icon: Icons.calendar_today,
+                    title: "Agenda",
+                    onTap: () {},
+                    iconColor: Colors.grey,
+                    textColor: Colors.grey,
                   ),
                 ],
               ),
@@ -118,6 +126,8 @@ class _MyHomePageState extends State<MyHomePage> {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
+    Color iconColor = const Color(0xFF0E37BB),
+    Color textColor = Colors.black87,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -137,13 +147,13 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: const Color(0xFF0E37BB), size: 48),
+            Icon(icon, color: iconColor, size: 48),
             const SizedBox(height: 12),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.black87,
+              style: TextStyle(
+                color: textColor,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
