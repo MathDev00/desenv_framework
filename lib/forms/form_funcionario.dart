@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:revitalize_mobile/controllers/funcionario.dart';
 import 'package:revitalize_mobile/models/funcionario.dart';
@@ -6,9 +7,33 @@ import 'package:revitalize_mobile/models/cidade.dart';
 import 'package:revitalize_mobile/pages/funcionario_page.dart';
 import 'package:revitalize_mobile/widgets/app_bar.dart';
 
+void main() {
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.dumpErrorToConsole(details);
+    debugPrint("Erro capturado globalmente pelo Flutter: ${details.exception}");
+  };
+
+  runZonedGuarded(() {
+    runApp(const MyApp());
+  }, (error, stackTrace) {
+    debugPrint("Erro global capturado: $error\n$stackTrace");
+  });
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Revitalize Mobile',
+      home: FormFuncionarioPage(),
+    );
+  }
+}
+
 class FormFuncionarioPage extends StatefulWidget {
-  final Funcionario?
-      funcionario; // Adicionando o campo para receber o funcionario
+  final Funcionario? funcionario;
 
   const FormFuncionarioPage({super.key, this.funcionario});
 
@@ -57,44 +82,105 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
   }
 
   Future<void> _loadOcupacoesECidades() async {
-    ocupacaoItems = await _controller.fetchOcupacoes();
-    cidadeItems = await _controller.fetchCidades();
-    setState(() {});
+    try {
+      ocupacaoItems = await _controller.fetchOcupacoes();
+      cidadeItems = await _controller.fetchCidades();
+      setState(() {});
+    } catch (e, stackTrace) {
+      _handleError(e, stackTrace, 'Erro ao carregar ocupações e cidades');
+    }
   }
 
   Future<void> _saveFuncionario() async {
-    final funcionario = Funcionario(
-      id: widget.funcionario?.id ?? '',
-      nome: nome,
-      ocupacao: ocupacaoId ?? '',
-      genero: genero ?? '',
-      cpf: cpf,
-      email: email,
-      endereco: endereco,
-      cidade: cidadeId ?? '',
-      cep: cep,
-      senha: senha,
-      dataNascimento: dataNascimento,
-    );
+    if (!_isCPFValid(cpf)) {
+      _showErrorMessage('CPF inválido. Insira apenas números e um CPF válido.');
+      return;
+    }
 
-    await _controller.saveFuncionario(funcionario);
-  Navigator.of(context).push(
-    MaterialPageRoute(builder: (context) => const FuncionarioPageState()));
+    try {
+      final funcionario = Funcionario(
+        id: widget.funcionario?.id ?? '',
+        nome: nome,
+        ocupacao: ocupacaoId ?? '',
+        genero: genero ?? '',
+        cpf: cpf,
+        email: email,
+        endereco: endereco,
+        cidade: cidadeId ?? '',
+        cep: cep,
+        senha: senha,
+        dataNascimento: dataNascimento,
+      );
+
+      await _controller.saveFuncionario(funcionario);
+
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => const FuncionarioPageState()),
+      );
+    } catch (e, stackTrace) {
+      _handleError(e, stackTrace, 'Erro ao salvar funcionário');
+    }
+  }
+
+  bool _isCPFValid(String cpf) {
+    final numericCPF = cpf.replaceAll(RegExp(r'[^0-9]'), '');
+
+    if (numericCPF.length != 11) {
+      return false;
+    }
+
+    int calculateDigit(List<int> numbers) {
+      int sum = 0;
+      for (int i = 0; i < numbers.length; i++) {
+        sum += numbers[i] * (numbers.length + 1 - i);
+      }
+      int digit = 11 - (sum % 11);
+      return digit > 9 ? 0 : digit;
+    }
+
+    final digits = numericCPF.split('').map(int.parse).toList();
+    final firstVerifier = calculateDigit(digits.sublist(0, 9));
+    final secondVerifier = calculateDigit(digits.sublist(0, 10));
+
+    return digits[9] == firstVerifier && digits[10] == secondVerifier;
+  }
+
+  void _showErrorMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  void _handleError(Object e, StackTrace stackTrace, String contextMessage) {
+    debugPrint('$contextMessage: $e\n$stackTrace');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$contextMessage: $e'),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   Future<void> _selectDate() async {
-    DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
+    try {
+      DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(1900),
+        lastDate: DateTime.now(),
+      );
 
-    if (picked != null) {
-      setState(() {
-        _dateController.text = picked.toString().split(" ")[0];
-        dataNascimento = _dateController.text;
-      });
+      if (picked != null) {
+        setState(() {
+          _dateController.text = picked.toString().split(" ")[0];
+          dataNascimento = _dateController.text;
+        });
+      }
+    } catch (e, stackTrace) {
+      _handleError(e, stackTrace, 'Erro ao selecionar data');
     }
   }
 
@@ -125,7 +211,7 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
                 child: Text(getItemLabel(item)),
               );
             }).toList()
-          : [], // Se a lista estiver vazia, não exibe opções
+          : [],
       onChanged: onChanged,
     );
   }
@@ -210,9 +296,7 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
               buildTextField('CEP', (text) => cep = text),
               SizedBox(height: 10),
 
-              // Campo de Senha
-              buildTextField('Senha', (text) => senha = text,
-                  obscureText: true),
+              buildTextField('Senha', (text) => senha = text, obscureText: true),
               SizedBox(height: 20),
 
               Center(
