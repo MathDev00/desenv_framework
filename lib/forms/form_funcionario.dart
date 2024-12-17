@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:revitalize_mobile/controllers/funcionario.dart';
 import 'package:revitalize_mobile/models/funcionario.dart';
@@ -6,31 +5,6 @@ import 'package:revitalize_mobile/models/ocupacao.dart';
 import 'package:revitalize_mobile/models/cidade.dart';
 import 'package:revitalize_mobile/pages/funcionario_page.dart';
 import 'package:revitalize_mobile/widgets/app_bar.dart';
-
-void main() {
-  FlutterError.onError = (FlutterErrorDetails details) {
-    FlutterError.dumpErrorToConsole(details);
-    debugPrint("Erro capturado globalmente pelo Flutter: ${details.exception}");
-  };
-
-  runZonedGuarded(() {
-    runApp(const MyApp());
-  }, (error, stackTrace) {
-    debugPrint("Erro global capturado: $error\n$stackTrace");
-  });
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Revitalize Mobile',
-      home: FormFuncionarioPage(),
-    );
-  }
-}
 
 class FormFuncionarioPage extends StatefulWidget {
   final Funcionario? funcionario;
@@ -82,13 +56,14 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
   }
 
   Future<void> _loadOcupacoesECidades() async {
-    try {
-      ocupacaoItems = await _controller.fetchOcupacoes();
-      cidadeItems = await _controller.fetchCidades();
-      setState(() {});
-    } catch (e, stackTrace) {
-      _handleError(e, stackTrace, 'Erro ao carregar ocupações e cidades');
-    }
+    ocupacaoItems = await _controller.fetchOcupacoes();
+    cidadeItems = await _controller.fetchCidades();
+    setState(() {});
+  }
+
+  bool _isCPFValid(String cpf) {
+    final RegExp cpfRegex = RegExp(r'^\d{11}$');
+    return cpfRegex.hasMatch(cpf);
   }
 
   Future<void> _saveFuncionario() async {
@@ -118,31 +93,39 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
         MaterialPageRoute(builder: (context) => const FuncionarioPageState()),
       );
     } catch (e, stackTrace) {
+      String errorMessage;
+
+      if (e.toString().contains('Account already exists for this username')) {
+        errorMessage =
+            'Erro: Já existe uma conta registrada com este e-mail ou CPF.';
+      } else if (e
+          .toString()
+          .contains('não foi possível obter o objectId do usuário')) {
+        errorMessage =
+            'Erro: Não foi possível concluir o registro do funcionário.';
+      } else {
+        errorMessage = 'Erro desconhecido: $e';
+      }
+
+      _showErrorMessage(errorMessage);
       _handleError(e, stackTrace, 'Erro ao salvar funcionário');
     }
   }
 
-  bool _isCPFValid(String cpf) {
-    final numericCPF = cpf.replaceAll(RegExp(r'[^0-9]'), '');
+  Future<void> _selectDate() async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
 
-    if (numericCPF.length != 11) {
-      return false;
+    if (picked != null) {
+      setState(() {
+        _dateController.text = picked.toString().split(" ")[0];
+        dataNascimento = _dateController.text;
+      });
     }
-
-    int calculateDigit(List<int> numbers) {
-      int sum = 0;
-      for (int i = 0; i < numbers.length; i++) {
-        sum += numbers[i] * (numbers.length + 1 - i);
-      }
-      int digit = 11 - (sum % 11);
-      return digit > 9 ? 0 : digit;
-    }
-
-    final digits = numericCPF.split('').map(int.parse).toList();
-    final firstVerifier = calculateDigit(digits.sublist(0, 9));
-    final secondVerifier = calculateDigit(digits.sublist(0, 10));
-
-    return digits[9] == firstVerifier && digits[10] == secondVerifier;
   }
 
   void _showErrorMessage(String message) {
@@ -158,30 +141,11 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
     debugPrint('$contextMessage: $e\n$stackTrace');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('$contextMessage: $e'),
+        content:
+            Text('$contextMessage. Consulte o console para mais detalhes.'),
         backgroundColor: Colors.red,
       ),
     );
-  }
-
-  Future<void> _selectDate() async {
-    try {
-      DateTime? picked = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(1900),
-        lastDate: DateTime.now(),
-      );
-
-      if (picked != null) {
-        setState(() {
-          _dateController.text = picked.toString().split(" ")[0];
-          dataNascimento = _dateController.text;
-        });
-      }
-    } catch (e, stackTrace) {
-      _handleError(e, stackTrace, 'Erro ao selecionar data');
-    }
   }
 
   Widget buildTextField(String label, Function(String) onChanged,
@@ -193,6 +157,46 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
         labelText: label,
         border: OutlineInputBorder(),
       ),
+    );
+  }
+
+  Widget buildPasswordField() {
+    return Row(
+      children: [
+        Expanded(
+          child: buildTextField(
+            'Senha',
+            (text) => senha = text,
+            obscureText: true,
+          ),
+        ),
+        IconButton(
+          icon: Icon(Icons.info_outline),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text('Requisitos de Senha'),
+                  content: Text(
+                    'A senha deve conter:\n\n'
+                    '- Pelo menos 8 caracteres\n'
+                    '- Letras maiúsculas e minúsculas\n'
+                    '- Pelo menos 1 número\n'
+                    '- Pelo menos 1 caractere especial (@, #, !, etc.).',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text('Entendi'),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -228,10 +232,8 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
             children: [
               Center(child: Icon(Icons.person, size: 60)),
               SizedBox(height: 20),
-
               buildTextField('Nome', (text) => nome = text),
               SizedBox(height: 20),
-
               TextField(
                 controller: _dateController,
                 decoration: InputDecoration(
@@ -246,7 +248,6 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
                 onTap: _selectDate,
               ),
               SizedBox(height: 10),
-
               buildDropdownField<Ocupacao>(
                 'Ocupação',
                 ocupacaoItems.isNotEmpty && ocupacaoId != null
@@ -260,7 +261,6 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
                 (Ocupacao ocupacao) => ocupacao.nome,
               ),
               SizedBox(height: 10),
-
               buildDropdownField<String>(
                 'Gênero',
                 genero,
@@ -269,16 +269,12 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
                 (String genero) => genero,
               ),
               SizedBox(height: 10),
-
               buildTextField('CPF', (text) => cpf = text),
               SizedBox(height: 10),
-
               buildTextField('E-mail', (text) => email = text),
               SizedBox(height: 10),
-
               buildTextField('Endereço', (text) => endereco = text),
               SizedBox(height: 10),
-
               buildDropdownField<Cidade>(
                 'Cidade',
                 cidadeItems.isNotEmpty && cidadeId != null
@@ -292,13 +288,10 @@ class _FormFuncionarioPageState extends State<FormFuncionarioPage> {
                 (Cidade cidade) => cidade.nome,
               ),
               SizedBox(height: 10),
-
               buildTextField('CEP', (text) => cep = text),
               SizedBox(height: 10),
-
-              buildTextField('Senha', (text) => senha = text, obscureText: true),
+              buildPasswordField(),
               SizedBox(height: 20),
-
               Center(
                 child: ElevatedButton(
                   onPressed: _saveFuncionario,
