@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:revitalize_mobile/pages/tela_inicial.dart';
+import 'package:book/pages/tela_inicial.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-  final Function? onBack; // Função de callback para recarregar dados
+  final Function? onBack; 
 
   const CustomAppBar({
     super.key,
@@ -26,9 +26,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         icon: const Icon(Icons.arrow_back),
         onPressed: () {
           if (onBack != null) {
-            onBack!(); // Chama a função de recarregar dados
+            onBack!();
           }
-          Navigator.of(context).pop(); // Voltar para a tela anterior
+          Navigator.of(context).pop(); 
         },
       ),
       actions: [
@@ -37,12 +37,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () {
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => MyHomePage()),
-              (Route<dynamic> route) => false, // Remove todas as rotas anteriores
+              (Route<dynamic> route) =>
+                  false, 
             );
           },
         ),
       ],
-      backgroundColor: const Color(0xFF0E37BB),
+      backgroundColor: const Color.fromARGB(255, 1, 5, 19),
       elevation: 2,
       iconTheme: const IconThemeData(color: Colors.white),
     );
